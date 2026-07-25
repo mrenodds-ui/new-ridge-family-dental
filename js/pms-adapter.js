@@ -622,6 +622,79 @@ export function buildTreatmentPlanReport(overlays) {
   }));
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   PHASE 3 — INSURANCE & APPOINTMENT MOCK DATA
+   ═══════════════════════════════════════════════════════════════════ */
+
+const MOCK_INSURANCE = {
+  carrier: 'Delta Dental of Kansas',
+  plan: 'Premier PPO',
+  memberId: 'DDKS7842901',
+  group: 'NRFD-2024',
+  deductibleAnnual: 50,
+  deductibleMet: 35,
+  annualMax: 1500,
+  annualUsed: 420,
+  coverage: {
+    diagnostic: { percent: 100, used: 180 },
+    preventive: { percent: 100, used: 120 },
+    basic: { percent: 80, used: 120 },
+    major: { percent: 50, used: 0 },
+    implant: { percent: 0, used: 0 }
+  }
+};
+
+const MOCK_APPOINTMENT_SLOTS = [
+  { date: '2026-07-28', day: 'Mon', slots: ['8:00 AM', '10:30 AM', '2:00 PM', '4:30 PM'] },
+  { date: '2026-07-29', day: 'Tue', slots: ['9:00 AM', '11:00 AM', '1:30 PM', '3:30 PM'] },
+  { date: '2026-07-30', day: 'Wed', slots: ['8:30 AM', '10:00 AM', '2:30 PM'] },
+  { date: '2026-07-31', day: 'Thu', slots: ['9:00 AM', '11:30 AM', '1:00 PM', '4:00 PM'] },
+];
+
+export async function loadInsurance(patientId) {
+  await delay(100);
+  return { ...MOCK_INSURANCE, patientId };
+}
+
+export async function loadAppointmentSlots() {
+  await delay(100);
+  return MOCK_APPOINTMENT_SLOTS;
+}
+
+export function calculateInsuranceEstimate(procedureCode, insurance) {
+  const estimates = {
+    'D0274': { category: 'diagnostic', fee: 85, name: 'Panoramic radiograph' },
+    'D0330': { category: 'diagnostic', fee: 350, name: 'CBCT' },
+    'D2740': { category: 'major', fee: 1200, name: 'Zirconia crown' },
+    'D6010': { category: 'implant', fee: 2200, name: 'Implant placement' },
+    'D7140': { category: 'basic', fee: 185, name: 'Extraction' },
+    'D4341': { category: 'basic', fee: 280, name: 'SRP (quad)' },
+    'D4910': { category: 'preventive', fee: 140, name: 'Perio maintenance' },
+  };
+  const est = estimates[procedureCode];
+  if (!est) return null;
+  const cov = insurance.coverage[est.category];
+  const covered = est.fee * (cov.percent / 100);
+  const patientDue = est.fee - covered;
+  const remainingMax = insurance.annualMax - insurance.annualUsed;
+  const adjustedPatientDue = Math.max(0, patientDue - Math.max(0, covered - remainingMax));
+  return { ...est, covered, patientDue: adjustedPatientDue, category: est.category, percent: cov.percent };
+}
+  if (!overlays || overlays.length === 0) return [];
+  const PROCEDURE_NAMES = {
+    crown: 'Crown', implant: 'Dental Implant', extraction: 'Extraction',
+    root_canal: 'Root Canal Therapy', filling: 'Composite Filling',
+    srp: 'Scaling & Root Planing', veneer: 'Veneer', bridge: 'Bridge'
+  };
+  return overlays.map(o => ({
+    tooth: o.tooth,
+    procedure: PROCEDURE_NAMES[o.type] || o.type,
+    material: o.material || '—',
+    status: o.status,
+    note: o.note
+  }));
+}
+
 /* ================================================================
    DEBUG / DIAGNOSTICS
    ================================================================ */
