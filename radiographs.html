@@ -63,6 +63,38 @@
   .rx-tool-btn:hover{ border-color:var(--rx-accent); color:var(--rx-accent); background:rgba(107,181,255,.08); }
   .rx-tool-btn.primary{ background:var(--rx-accent); color:#0F1113; border-color:var(--rx-accent); font-weight:600; }
   .rx-tool-btn.primary:hover{ background:#8ECAFF; }
+  .rx-tool-btn:disabled{ opacity:.4; cursor:not-allowed; }
+
+  /* loading state */
+  .rx-loading{
+    display:flex; align-items:center; gap:12px;
+    font-family:var(--mono); font-size:12px; color:var(--rx-text-dim);
+  }
+  .rx-spinner{
+    width:16px; height:16px; border:2px solid var(--rx-border);
+    border-top-color:var(--rx-accent); border-radius:50%;
+    animation:spin 1s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  /* error banner */
+  .rx-error{
+    background:rgba(255,107,107,.1); border:1px solid rgba(255,107,107,.3);
+    color:var(--rx-danger); padding:12px 18px; border-radius:6px;
+    font-family:var(--sans); font-size:13px; margin-bottom:12px;
+  }
+
+  /* patient search */
+  .rx-search{
+    display:flex; gap:8px; align-items:center;
+  }
+  .rx-search input{
+    background:transparent; border:1px solid var(--rx-border); border-radius:6px;
+    color:var(--rx-text); font-family:var(--sans); font-size:13px;
+    padding:8px 14px; width:180px; outline:none;
+  }
+  .rx-search input:focus{ border-color:var(--rx-accent); }
+  .rx-search input::placeholder{ color:var(--rx-text-dim); }
 
   /* ----- main split ----- */
   .rx-main{
@@ -179,9 +211,7 @@
   .rx-measure .m-val{ color:#FFFFFF; font-family:var(--mono); font-weight:500; }
 
   /* comparison toggle */
-  .rx-compare-bar{
-    display:flex; gap:8px; margin-top:16px;
-  }
+  .rx-compare-bar{ display:flex; gap:8px; margin-top:16px; flex-wrap:wrap; }
   .rx-compare-chip{
     font-family:var(--mono); font-size:10px; letter-spacing:.06em;
     padding:6px 14px; border-radius:4px; border:1px solid var(--rx-border);
@@ -308,15 +338,15 @@
 </header>
 
 <!-- ======== TOOLBAR ======== -->
-<div class="rx-toolbar">
-  <div class="rx-patient-chip">
-    <div class="rx-avatar">JD</div>
-    <div class="rx-patient-meta">
-      <h4>John Doe</h4>
-      <span>DOB: 04/12/1985 · ID: 78429 · Panoramic — 07/25/2026</span>
-    </div>
+<div class="rx-toolbar" id="rxToolbar">
+  <div class="rx-patient-chip" id="rxPatientChip">
+    <div class="rx-loading"><div class="rx-spinner"></div>Loading patient…</div>
   </div>
   <div class="rx-tools">
+    <div class="rx-search" id="rxSearch" style="display:none;">
+      <input type="text" id="patientSearchInput" placeholder="Patient ID…" />
+      <button class="rx-tool-btn" onclick="loadPatientFromInput()">Load</button>
+    </div>
     <button class="rx-tool-btn" onclick="toggleCompare()" title="Toggle prior comparison">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
       Compare Prior
@@ -325,7 +355,7 @@
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20 10 10 0 0 1 0-20"/></svg>
       Invert
     </button>
-    <button class="rx-tool-btn primary" onclick="printReport()">
+    <button class="rx-tool-btn primary" id="btnPrint" onclick="printReport()" disabled>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
       Print Patient Report
     </button>
@@ -338,225 +368,100 @@
   <!-- Viewport -->
   <div class="rx-viewport" id="rxViewport">
     <div class="rx-image-wrap" id="rxImageWrap">
-      <!-- Dental panoramic radiograph SVG placeholder -->
-      <svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg" style="max-width:900px;">
-        <defs>
-          <radialGradient id="boneGrad" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="#2A2E33"/>
-            <stop offset="100%" stop-color="#15171A"/>
-          </radialGradient>
-          <filter id="glow">
-            <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-            <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
-        </defs>
-
-        <!-- Background -->
-        <rect width="800" height="400" fill="url(#boneGrad)"/>
-
-        <!-- Mandible / Maxilla bone structure -->
-        <path d="M 60,200 Q 120,100 200,110 Q 280,120 320,130 Q 360,140 400,140 Q 440,140 480,130 Q 520,120 600,110 Q 680,100 740,200 Q 700,320 600,310 Q 520,300 480,290 Q 440,280 400,280 Q 360,280 320,290 Q 280,300 200,310 Q 100,320 60,200 Z" fill="#1E2226" stroke="#3A3F45" stroke-width="1.5"/>
-
-        <!-- Upper teeth roots -->
-        <g fill="#C8D0D8" opacity="0.85">
-          <!-- Upper left -->
-          <rect x="135" y="125" width="10" height="35" rx="4"/>
-          <rect x="155" y="128" width="12" height="38" rx="5"/>
-          <rect x="178" y="132" width="14" height="42" rx="5"/>
-          <rect x="205" y="136" width="16" height="48" rx="6"/>
-          <rect x="235" y="140" width="18" height="52" rx="7"/>
-          <rect x="268" y="144" width="16" height="50" rx="6"/>
-          <rect x="298" y="146" width="14" height="46" rx="5"/>
-          <rect x="325" y="148" width="12" height="40" rx="5"/>
-          <!-- Upper center -->
-          <rect x="350" y="148" width="10" height="35" rx="4"/>
-          <rect x="370" y="148" width="10" height="35" rx="4"/>
-          <rect x="390" y="148" width="10" height="35" rx="4"/>
-          <!-- Upper right -->
-          <rect x="420" y="148" width="12" height="40" rx="5"/>
-          <rect x="445" y="146" width="14" height="46" rx="5"/>
-          <rect x="473" y="144" width="16" height="50" rx="6"/>
-          <rect x="503" y="140" width="18" height="52" rx="7"/>
-          <rect x="535" y="136" width="16" height="48" rx="6"/>
-          <rect x="562" y="132" width="14" height="42" rx="5"/>
-          <rect x="587" y="128" width="12" height="38" rx="5"/>
-          <rect x="610" y="125" width="10" height="35" rx="4"/>
-        </g>
-
-        <!-- Lower teeth roots -->
-        <g fill="#C8D0D8" opacity="0.85">
-          <!-- Lower left -->
-          <rect x="140" y="270" width="10" height="32" rx="4"/>
-          <rect x="160" y="266" width="12" height="36" rx="5"/>
-          <rect x="182" y="262" width="14" height="40" rx="5"/>
-          <rect x="208" y="258" width="16" height="46" rx="6"/>
-          <rect x="238" y="254" width="18" height="50" rx="7"/>
-          <rect x="270" y="250" width="16" height="48" rx="6"/>
-          <rect x="300" y="248" width="14" height="44" rx="5"/>
-          <rect x="327" y="246" width="12" height="38" rx="5"/>
-          <!-- Lower center -->
-          <rect x="352" y="246" width="10" height="34" rx="4"/>
-          <rect x="372" y="246" width="10" height="34" rx="4"/>
-          <rect x="392" y="246" width="10" height="34" rx="4"/>
-          <!-- Lower right -->
-          <rect x="422" y="246" width="12" height="38" rx="5"/>
-          <rect x="447" y="248" width="14" height="44" rx="5"/>
-          <rect x="475" y="250" width="16" height="48" rx="6"/>
-          <rect x="505" y="254" width="18" height="50" rx="7"/>
-          <rect x="537" y="258" width="16" height="46" rx="6"/>
-          <rect x="564" y="262" width="14" height="40" rx="5"/>
-          <rect x="589" y="266" width="12" height="36" rx="5"/>
-          <rect x="612" y="270" width="10" height="32" rx="4"/>
-        </g>
-
-        <!-- Implants (bright white) -->
-        <g fill="#FFFFFF" filter="url(#glow)">
-          <rect x="233" y="142" width="20" height="56" rx="3"/>
-          <rect x="505" y="142" width="20" height="56" rx="3"/>
-        </g>
-        <!-- Implant abutments -->
-        <g fill="#E0E6EC">
-          <rect x="236" y="138" width="14" height="8" rx="2"/>
-          <rect x="508" y="138" width="14" height="8" rx="2"/>
-        </g>
-
-        <!-- Crown restoration -->
-        <g fill="#F5F5F5" opacity="0.9">
-          <rect x="230" y="130" width="26" height="14" rx="4"/>
-          <rect x="502" y="130" width="26" height="14" rx="4"/>
-        </g>
-
-        <!-- Annotations (in-image markers for demo) -->
-        <circle cx="243" cy="115" r="10" fill="none" stroke="#6BB5FF" stroke-width="1.5" opacity="0.5"/>
-        <circle cx="515" cy="115" r="10" fill="none" stroke="#6BB5FF" stroke-width="1.5" opacity="0.5"/>
-
-        <!-- Mandibular canal -->
-        <path d="M 120,280 Q 250,260 400,265 Q 550,260 680,280" fill="none" stroke="#4A5058" stroke-width="2" stroke-dasharray="6 4" opacity="0.5"/>
-
-        <!-- Sinus floor -->
-        <path d="M 200,95 Q 300,85 400,88 Q 500,85 600,95" fill="none" stroke="#4A5058" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.4"/>
-
-        <!-- Text labels on image -->
-        <text x="400" y="380" text-anchor="middle" font-family="Geist Mono, monospace" font-size="10" fill="#6A7078" letter-spacing="0.1em">PANORAMIC RADIOGRAPH — 07/25/2026</text>
-      </svg>
-
-      <!-- Annotation overlays -->
-      <div class="rx-annotations" id="rxAnnotations">
-        <div class="rx-ann" style="left:28%; top:30%;">
-          <div class="rx-ann-dot"></div>
-          <div class="rx-ann-label">Implant #19 — Osseointegrated</div>
-        </div>
-        <div class="rx-ann" style="left:62%; top:30%;">
-          <div class="rx-ann-dot"></div>
-          <div class="rx-ann-label">Implant #30 — Osseointegrated</div>
-        </div>
-        <div class="rx-ann" style="left:44%; top:68%;">
-          <div class="rx-ann-dot warn"></div>
-          <div class="rx-ann-label">Root canal #24 — Recurrent decay</div>
-        </div>
-        <div class="rx-ann" style="left:52%; top:65%;">
-          <div class="rx-ann-dot danger"></div>
-          <div class="rx-ann-label">#25 — Periapical radiolucency</div>
-        </div>
-        <div class="rx-ann" style="left:36%; top:36%;">
-          <div class="rx-ann-dot warn"></div>
-          <div class="rx-ann-label">#14 — Bone loss 3-4 mm</div>
-        </div>
+      <!-- Dynamic image injected here -->
+      <div id="rxImageContainer">
+        <!-- SVG placeholder until real radiograph loads -->
+        <svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg" style="max-width:900px;">
+          <defs>
+            <radialGradient id="boneGrad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#2A2E33"/>
+              <stop offset="100%" stop-color="#15171A"/>
+            </radialGradient>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+              <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+          <rect width="800" height="400" fill="url(#boneGrad)"/>
+          <path d="M 60,200 Q 120,100 200,110 Q 280,120 320,130 Q 360,140 400,140 Q 440,140 480,130 Q 520,120 600,110 Q 680,100 740,200 Q 700,320 600,310 Q 520,300 480,290 Q 440,280 400,280 Q 360,280 320,290 Q 280,300 200,310 Q 100,320 60,200 Z" fill="#1E2226" stroke="#3A3F45" stroke-width="1.5"/>
+          <g fill="#C8D0D8" opacity="0.85">
+            <rect x="135" y="125" width="10" height="35" rx="4"/><rect x="155" y="128" width="12" height="38" rx="5"/>
+            <rect x="178" y="132" width="14" height="42" rx="5"/><rect x="205" y="136" width="16" height="48" rx="6"/>
+            <rect x="235" y="140" width="18" height="52" rx="7"/><rect x="268" y="144" width="16" height="50" rx="6"/>
+            <rect x="298" y="146" width="14" height="46" rx="5"/><rect x="325" y="148" width="12" height="40" rx="5"/>
+            <rect x="350" y="148" width="10" height="35" rx="4"/><rect x="370" y="148" width="10" height="35" rx="4"/>
+            <rect x="390" y="148" width="10" height="35" rx="4"/><rect x="420" y="148" width="12" height="40" rx="5"/>
+            <rect x="445" y="146" width="14" height="46" rx="5"/><rect x="473" y="144" width="16" height="50" rx="6"/>
+            <rect x="503" y="140" width="18" height="52" rx="7"/><rect x="535" y="136" width="16" height="48" rx="6"/>
+            <rect x="562" y="132" width="14" height="42" rx="5"/><rect x="587" y="128" width="12" height="38" rx="5"/>
+            <rect x="610" y="125" width="10" height="35" rx="4"/>
+          </g>
+          <g fill="#C8D0D8" opacity="0.85">
+            <rect x="140" y="270" width="10" height="32" rx="4"/><rect x="160" y="266" width="12" height="36" rx="5"/>
+            <rect x="182" y="262" width="14" height="40" rx="5"/><rect x="208" y="258" width="16" height="46" rx="6"/>
+            <rect x="238" y="254" width="18" height="50" rx="7"/><rect x="270" y="250" width="16" height="48" rx="6"/>
+            <rect x="300" y="248" width="14" height="44" rx="5"/><rect x="327" y="246" width="12" height="38" rx="5"/>
+            <rect x="352" y="246" width="10" height="34" rx="4"/><rect x="372" y="246" width="10" height="34" rx="4"/>
+            <rect x="392" y="246" width="10" height="34" rx="4"/><rect x="422" y="246" width="12" height="38" rx="5"/>
+            <rect x="447" y="248" width="14" height="44" rx="5"/><rect x="475" y="250" width="16" height="48" rx="6"/>
+            <rect x="505" y="254" width="18" height="50" rx="7"/><rect x="537" y="258" width="16" height="46" rx="6"/>
+            <rect x="564" y="262" width="14" height="40" rx="5"/><rect x="589" y="266" width="12" height="36" rx="5"/>
+            <rect x="612" y="270" width="10" height="32" rx="4"/>
+          </g>
+          <g fill="#FFFFFF" filter="url(#glow)">
+            <rect x="233" y="142" width="20" height="56" rx="3"/>
+            <rect x="505" y="142" width="20" height="56" rx="3"/>
+          </g>
+          <g fill="#E0E6EC">
+            <rect x="236" y="138" width="14" height="8" rx="2"/>
+            <rect x="508" y="138" width="14" height="8" rx="2"/>
+          </g>
+          <g fill="#F5F5F5" opacity="0.9">
+            <rect x="230" y="130" width="26" height="14" rx="4"/>
+            <rect x="502" y="130" width="26" height="14" rx="4"/>
+          </g>
+          <path d="M 120,280 Q 250,260 400,265 Q 550,260 680,280" fill="none" stroke="#4A5058" stroke-width="2" stroke-dasharray="6 4" opacity="0.5"/>
+          <path d="M 200,95 Q 300,85 400,88 Q 500,85 600,95" fill="none" stroke="#4A5058" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.4"/>
+          <text x="400" y="380" text-anchor="middle" font-family="Geist Mono, monospace" font-size="10" fill="#6A7078" letter-spacing="0.1em">PANORAMIC RADIOGRAPH — 07/25/2026</text>
+        </svg>
       </div>
+      <!-- Annotation overlays -->
+      <div class="rx-annotations" id="rxAnnotations"></div>
     </div>
   </div>
 
   <!-- Side Panel -->
-  <div class="rx-panel">
+  <div class="rx-panel" id="rxPanel">
 
     <!-- AI Analysis -->
     <div class="rx-panel-section">
       <h3><span class="dot"></span>AI Analysis — Qwen3-VL</h3>
-      <div class="rx-analysis">
-        <p>
-          <strong>Panoramic overview:</strong> Full-arch panoramic radiograph demonstrates bilateral endosseous implants in the mandibular first-molar positions (#19 and #30) with intact crestal bone levels and no signs of peri-implant radiolucency.
-        </p>
-        <p>
-          <strong>Periodontal status:</strong> Generalized horizontal bone loss of approximately 3–4 mm is present in the posterior maxilla. Anterior regions show preserved interdental septa.
-          <span class="confidence">Confidence: 91%</span>
-        </p>
-        <p>
-          <strong>Endodontic finding:</strong> Tooth #25 exhibits a well-defined periapical radiolucency measuring ~6 × 8 mm. Prior root canal therapy is present on #24 with evidence of recurrent decay at the mesial margin.
-          <span class="confidence">Confidence: 87%</span>
-        </p>
+      <div class="rx-analysis" id="rxAnalysis">
+        <div class="rx-loading"><div class="rx-spinner"></div>Loading analysis…</div>
       </div>
     </div>
 
     <!-- Findings -->
     <div class="rx-panel-section">
       <h3><span class="dot" style="background:var(--rx-warn); box-shadow:0 0 8px var(--rx-warn);"></span>Prioritized Findings</h3>
-      <ul class="rx-findings">
-        <li>
-          <span class="rx-sev danger">!</span>
-          <div class="rx-finding-text">
-            Periapical radiolucency #25 — possible failed RCT or persistent infection.
-            <small>Recommend CBCT + endodontic re-evaluation</small>
-          </div>
-        </li>
-        <li>
-          <span class="rx-sev warn">2</span>
-          <div class="rx-finding-text">
-            Recurrent caries at mesial margin of #24 crown.
-            <small>Monitor or replace restoration</small>
-          </div>
-        </li>
-        <li>
-          <span class="rx-sev warn">3</span>
-          <div class="rx-finding-text">
-            Posterior maxillary bone loss 3–4 mm (#14–16, #2–4).
-            <small>Continue perio maintenance q3mo</small>
-          </div>
-        </li>
-        <li>
-          <span class="rx-sev info">4</span>
-          <div class="rx-finding-text">
-            Implants #19 &amp; #30 — stable, well-osseointegrated.
-            <small>Annual recall adequate</small>
-          </div>
-        </li>
-        <li>
-          <span class="rx-sev info">5</span>
-          <div class="rx-finding-text">
-            No signs of maxillary sinus pathology.
-            <small>Within normal limits</small>
-          </div>
-        </li>
+      <ul class="rx-findings" id="rxFindings">
+        <li><div class="rx-loading"><div class="rx-spinner"></div>Loading findings…</div></li>
       </ul>
     </div>
 
     <!-- Measurements -->
     <div class="rx-panel-section">
       <h3><span class="dot" style="background:var(--rx-success); box-shadow:0 0 8px var(--rx-success);"></span>Auto-Measurements</h3>
-      <div class="rx-measure">
-        <span class="m-label">Implant #19 crestal bone</span>
-        <span class="m-val">1.2 mm</span>
-      </div>
-      <div class="rx-measure">
-        <span class="m-label">Implant #30 crestal bone</span>
-        <span class="m-val">1.4 mm</span>
-      </div>
-      <div class="rx-measure">
-        <span class="m-label">#25 periapical lesion</span>
-        <span class="m-val">6.1 × 8.3 mm</span>
-      </div>
-      <div class="rx-measure">
-        <span class="m-label">Mandibular canal clearance</span>
-        <span class="m-val">4.8 mm</span>
+      <div id="rxMeasurements">
+        <div class="rx-loading"><div class="rx-spinner"></div>Loading measurements…</div>
       </div>
     </div>
 
     <!-- Compare -->
     <div class="rx-panel-section">
       <h3><span class="dot" style="background:var(--rx-text-dim); box-shadow:none;"></span>Comparison</h3>
-      <div class="rx-compare-bar">
+      <div class="rx-compare-bar" id="rxCompareBar">
         <div class="rx-compare-chip on">Current — 07/25/2026</div>
-        <div class="rx-compare-chip">Prior — 01/14/2025</div>
-        <div class="rx-compare-chip">Baseline — 06/03/2022</div>
       </div>
     </div>
 
@@ -565,166 +470,301 @@
 
 <!-- ======== PRINT REPORT (hidden until print) ======== -->
 <div id="rx-print-area">
-
-  <!-- Letterhead -->
-  <div class="rx-print-header">
-    <div class="rx-print-brand">
-      New Ridge Family Dental
-      <small>Michael Reno, DDS · 2135 North Ridge Rd Ste 700, Wichita, KS 67212 · (316) 722-6060</small>
-    </div>
-    <div class="rx-print-meta">
-      RADIOGRAPH REPORT<br/>
-      Generated: July 25, 2026<br/>
-      Exam: Panoramic Radiograph
-    </div>
-  </div>
-
-  <!-- Patient -->
-  <div class="rx-print-patient">
-    <div class="pp-row"><span class="pp-label">Patient</span><span class="pp-val">John Doe</span></div>
-    <div class="pp-row"><span class="pp-label">Date of Birth</span><span class="pp-val">April 12, 1985</span></div>
-    <div class="pp-row"><span class="pp-label">Patient ID</span><span class="pp-val">NR-78429</span></div>
-    <div class="pp-row"><span class="pp-label">Date of Exam</span><span class="pp-val">July 25, 2026</span></div>
-    <div class="pp-row"><span class="pp-label">Referring Dentist</span><span class="pp-val">Michael Reno, DDS</span></div>
-    <div class="pp-row"><span class="pp-label">Report ID</span><span class="pp-val">RAD-2026-0725-001</span></div>
-  </div>
-
-  <!-- Image -->
-  <figure class="rx-print-image">
-    <svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg" style="max-width:640px;">
-      <defs>
-        <radialGradient id="pbone" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#EAEAEA"/><stop offset="100%" stop-color="#D5D5D5"/></radialGradient>
-      </defs>
-      <rect width="800" height="400" fill="url(#pbone)"/>
-      <path d="M 60,200 Q 120,100 200,110 Q 280,120 320,130 Q 360,140 400,140 Q 440,140 480,130 Q 520,120 600,110 Q 680,100 740,200 Q 700,320 600,310 Q 520,300 480,290 Q 440,280 400,280 Q 360,280 320,290 Q 280,300 200,310 Q 100,320 60,200 Z" fill="#C8C8C8" stroke="#999" stroke-width="1"/>
-      <g fill="#F0F0F0">
-        <rect x="135" y="125" width="10" height="35" rx="4"/><rect x="155" y="128" width="12" height="38" rx="5"/>
-        <rect x="178" y="132" width="14" height="42" rx="5"/><rect x="205" y="136" width="16" height="48" rx="6"/>
-        <rect x="235" y="140" width="18" height="52" rx="7"/><rect x="268" y="144" width="16" height="50" rx="6"/>
-        <rect x="298" y="146" width="14" height="46" rx="5"/><rect x="325" y="148" width="12" height="40" rx="5"/>
-        <rect x="350" y="148" width="10" height="35" rx="4"/><rect x="370" y="148" width="10" height="35" rx="4"/>
-        <rect x="390" y="148" width="10" height="35" rx="4"/><rect x="420" y="148" width="12" height="40" rx="5"/>
-        <rect x="445" y="146" width="14" height="46" rx="5"/><rect x="473" y="144" width="16" height="50" rx="6"/>
-        <rect x="503" y="140" width="18" height="52" rx="7"/><rect x="535" y="136" width="16" height="48" rx="6"/>
-        <rect x="562" y="132" width="14" height="42" rx="5"/><rect x="587" y="128" width="12" height="38" rx="5"/>
-        <rect x="610" y="125" width="10" height="35" rx="4"/>
-      </g>
-      <g fill="#F0F0F0">
-        <rect x="140" y="270" width="10" height="32" rx="4"/><rect x="160" y="266" width="12" height="36" rx="5"/>
-        <rect x="182" y="262" width="14" height="40" rx="5"/><rect x="208" y="258" width="16" height="46" rx="6"/>
-        <rect x="238" y="254" width="18" height="50" rx="7"/><rect x="270" y="250" width="16" height="48" rx="6"/>
-        <rect x="300" y="248" width="14" height="44" rx="5"/><rect x="327" y="246" width="12" height="38" rx="5"/>
-        <rect x="352" y="246" width="10" height="34" rx="4"/><rect x="372" y="246" width="10" height="34" rx="4"/>
-        <rect x="392" y="246" width="10" height="34" rx="4"/><rect x="422" y="246" width="12" height="38" rx="5"/>
-        <rect x="447" y="248" width="14" height="44" rx="5"/><rect x="475" y="250" width="16" height="48" rx="6"/>
-        <rect x="505" y="254" width="18" height="50" rx="7"/><rect x="537" y="258" width="16" height="46" rx="6"/>
-        <rect x="564" y="262" width="14" height="40" rx="5"/><rect x="589" y="266" width="12" height="36" rx="5"/>
-        <rect x="612" y="270" width="10" height="32" rx="4"/>
-      </g>
-      <g fill="#FFFFFF" stroke="#999" stroke-width="0.5"><rect x="233" y="142" width="20" height="56" rx="3"/><rect x="505" y="142" width="20" height="56" rx="3"/></g>
-      <g fill="#E8E8E8"><rect x="236" y="138" width="14" height="8" rx="2"/><rect x="508" y="138" width="14" height="8" rx="2"/></g>
-      <g fill="#FAFAFA" stroke="#CCC" stroke-width="0.5"><rect x="230" y="130" width="26" height="14" rx="4"/><rect x="502" y="130" width="26" height="14" rx="4"/></g>
-      <circle cx="243" cy="115" r="10" fill="none" stroke="#2A7CC8" stroke-width="1.5"/>
-      <circle cx="515" cy="115" r="10" fill="none" stroke="#2A7CC8" stroke-width="1.5"/>
-      <path d="M 120,280 Q 250,260 400,265 Q 550,260 680,280" fill="none" stroke="#AAA" stroke-width="1.5" stroke-dasharray="6 4"/>
-      <path d="M 200,95 Q 300,85 400,88 Q 500,85 600,95" fill="none" stroke="#AAA" stroke-width="1" stroke-dasharray="4 3"/>
-    </svg>
-    <figcaption>Figure 1 — Panoramic radiograph, mandibular and maxillary arches with bilateral implant restorations.</figcaption>
-  </figure>
-
-  <!-- Report Body -->
-  <div class="rx-print-section">
-    <h4>Clinical Impressions</h4>
-    <p>
-      Panoramic radiograph dated July 25, 2026, reviewed with AI-assisted analysis.
-      Bilateral endosseous implants are present in the mandibular first-molar positions (#19 and #30).
-      Both implants demonstrate stable crestal bone levels without evidence of peri-implant radiolucency,
-      consistent with successful osseointegration.
-    </p>
-    <p>
-      Tooth #25 demonstrates a well-circumscribed periapical radiolucency measuring approximately 6 × 8 mm.
-      Given the size and well-defined nature of this lesion, endodontic re-evaluation with cone-beam CT is
-      recommended to assess for persistent infection, cystic change, or vertical root fracture.
-    </p>
-    <p>
-      Tooth #24 has undergone prior root canal therapy. A radiolucent defect is noted at the mesial margin
-      of the existing crown, suggestive of recurrent caries. Clinical correlation and possible restoration
-      replacement should be considered.
-    </p>
-    <p>
-      Generalized horizontal bone loss of 3–4 mm is noted in the posterior maxillary sextants. This is
-      consistent with mild chronic periodontitis. Current periodontal maintenance every three months is
-      appropriate and should be continued.
-    </p>
-  </div>
-
-  <div class="rx-print-section">
-    <h4>Findings Summary</h4>
-    <ul class="rx-print-findings">
-      <li><span class="rx-print-sev danger">!</span>Periapical radiolucency #25 — recommend CBCT and endodontic consult.</li>
-      <li><span class="rx-print-sev warn">2</span>Recurrent caries #24 mesial margin — monitor or replace restoration.</li>
-      <li><span class="rx-print-sev warn">3</span>Posterior maxillary bone loss 3–4 mm — continue q3mo perio maintenance.</li>
-      <li><span class="rx-print-sev info">4</span>Implants #19 &amp; #30 — stable, annual recall adequate.</li>
-      <li><span class="rx-print-sev info">5</span>Maxillary sinuses clear — no pathology noted.</li>
-    </ul>
-  </div>
-
-  <div class="rx-print-section">
-    <h4>Recommendations</h4>
-    <p>1. Schedule CBCT imaging of tooth #25 to characterize periapical lesion and rule out vertical root fracture.</p>
-    <p>2. Endodontic re-evaluation of #25; consider nonsurgical retreatment or apical surgery depending on CBCT findings.</p>
-    <p>3. Evaluate #24 crown margin clinically; replace restoration if recurrent caries is confirmed.</p>
-    <p>4. Continue periodontal maintenance every three months with routine radiographic surveillance.</p>
-    <p>5. Annual panoramic recall for implant #19 and #30 monitoring.</p>
-  </div>
-
-  <!-- Signature block -->
-  <div class="rx-print-signature">
-    <div class="rx-print-sig-line">Interpreting Dentist — Date</div>
-    <div class="rx-print-sig-line">Patient Acknowledgment — Date</div>
-  </div>
-
-  <div class="rx-print-footer">
-    <span>This report was generated with AI-assisted analysis (Qwen3-VL) and reviewed by the interpreting dentist.</span>
-    <span>Page 1 of 1</span>
-  </div>
-
+  <!-- Dynamically populated by JS -->
 </div>
 
-<script>
-  /* Header scroll shadow */
+<script type="module">
+  import {
+    loadPatient, loadRadiographs, loadAnalysis,
+    loadPatientRecord, buildReport, diagnose
+  } from './js/pms-adapter.js';
+  import { PMS_CONFIG } from './js/pms-config.js';
+
+  /* ================================================================
+     STATE
+     ================================================================ */
+  let currentPatient = null;
+  let currentRadiograph = null;
+  let currentAnalysis = null;
+  let inverted = false;
+  let comparing = false;
+
+  /* ================================================================
+     RENDERERS
+     ================================================================ */
+
+  function renderPatientChip(patient, radiograph) {
+    const chip = document.getElementById('rxPatientChip');
+    chip.innerHTML = `
+      <div class="rx-avatar">${patient.initials || (patient.firstName?.[0] + patient.lastName?.[0]).toUpperCase()}</div>
+      <div class="rx-patient-meta">
+        <h4>${patient.firstName} ${patient.lastName}</h4>
+        <span>DOB: ${patient.displayDob || patient.dob} · ID: ${patient.id} · ${radiograph?.type || ''} — ${radiograph?.displayDate || ''}</span>
+      </div>
+    `;
+  }
+
+  function renderAnalysis(analysis) {
+    const el = document.getElementById('rxAnalysis');
+    if (!analysis || !analysis.paragraphs) {
+      el.innerHTML = '<p>No AI analysis available for this radiograph.</p>';
+      return;
+    }
+    el.innerHTML = analysis.paragraphs.map(p => `
+      <p><strong>${p.heading}:</strong> ${p.text}${p.confidence ? `<span class="confidence">Confidence: ${Math.round(p.confidence * 100)}%</span>` : ''}</p>
+    `).join('');
+  }
+
+  function renderFindings(findings) {
+    const el = document.getElementById('rxFindings');
+    if (!findings || findings.length === 0) {
+      el.innerHTML = '<li><div class="rx-finding-text">No findings recorded.</div></li>';
+      return;
+    }
+    el.innerHTML = findings.map(f => `
+      <li>
+        <span class="rx-sev ${f.severity}">${f.severity === 'danger' ? '!' : f.rank}</span>
+        <div class="rx-finding-text">
+          ${f.text}
+          ${f.note ? `<small>${f.note}</small>` : ''}
+        </div>
+      </li>
+    `).join('');
+  }
+
+  function renderMeasurements(measurements) {
+    const el = document.getElementById('rxMeasurements');
+    if (!measurements || measurements.length === 0) {
+      el.innerHTML = '<p style="color:var(--rx-text-dim); font-size:13px;">No measurements available.</p>';
+      return;
+    }
+    el.innerHTML = measurements.map(m => `
+      <div class="rx-measure">
+        <span class="m-label">${m.label}</span>
+        <span class="m-val">${m.value}</span>
+      </div>
+    `).join('');
+  }
+
+  function renderAnnotations(annotations) {
+    const el = document.getElementById('rxAnnotations');
+    if (!annotations || annotations.length === 0) {
+      el.innerHTML = '';
+      return;
+    }
+    el.innerHTML = annotations.map(a => `
+      <div class="rx-ann" style="left:${a.x}%; top:${a.y}%;">
+        <div class="rx-ann-dot ${a.severity}"></div>
+        <div class="rx-ann-label">${a.label}</div>
+      </div>
+    `).join('');
+  }
+
+  function renderCompareBar(radiograph) {
+    const el = document.getElementById('rxCompareBar');
+    const priors = radiograph?.priors || [];
+    el.innerHTML = `
+      <div class="rx-compare-chip on">Current — ${radiograph?.displayDate || 'Now'}</div>
+      ${priors.map(p => `<div class="rx-compare-chip">${p.label}</div>`).join('')}
+    `;
+    // Re-attach click handlers
+    el.querySelectorAll('.rx-compare-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        el.querySelectorAll('.rx-compare-chip').forEach(c => c.classList.remove('on'));
+        chip.classList.add('on');
+      });
+    });
+  }
+
+  function renderError(msg) {
+    const html = `<div class="rx-error">${msg}</div>`;
+    document.getElementById('rxAnalysis').innerHTML = html;
+    document.getElementById('rxFindings').innerHTML = `<li>${html}</li>`;
+    document.getElementById('rxMeasurements').innerHTML = html;
+  }
+
+  /* ================================================================
+     PRINT REPORT
+     ================================================================ */
+
+  function renderPrintReport(report) {
+    const area = document.getElementById('rx-print-area');
+    const h = report.header;
+    const p = report.patient;
+
+    area.innerHTML = `
+      <div class="rx-print-header">
+        <div class="rx-print-brand">
+          ${h.practice}
+          <small>${h.doctor} · ${h.address} · ${h.phone}</small>
+        </div>
+        <div class="rx-print-meta">
+          RADIOGRAPH REPORT<br/>
+          Generated: ${h.generated}<br/>
+          Exam: ${h.examType}
+        </div>
+      </div>
+
+      <div class="rx-print-patient">
+        <div class="pp-row"><span class="pp-label">Patient</span><span class="pp-val">${p.name}</span></div>
+        <div class="pp-row"><span class="pp-label">Date of Birth</span><span class="pp-val">${p.dob}</span></div>
+        <div class="pp-row"><span class="pp-label">Patient ID</span><span class="pp-val">${p.id}</span></div>
+        <div class="pp-row"><span class="pp-label">Date of Exam</span><span class="pp-val">${p.dateOfExam}</span></div>
+        <div class="pp-row"><span class="pp-label">Referring Dentist</span><span class="pp-val">${p.referringDentist}</span></div>
+        <div class="pp-row"><span class="pp-label">Report ID</span><span class="pp-val">${p.reportId}</span></div>
+      </div>
+
+      <figure class="rx-print-image">
+        <div id="printImageSlot"></div>
+        <figcaption>${report.image.caption}</figcaption>
+      </figure>
+
+      <div class="rx-print-section">
+        <h4>Clinical Impressions</h4>
+        ${report.impressions.map(i => `<p>${i}</p>`).join('')}
+      </div>
+
+      <div class="rx-print-section">
+        <h4>Findings Summary</h4>
+        <ul class="rx-print-findings">
+          ${report.findings.map(f => `
+            <li><span class="rx-print-sev ${f.severity}">${f.severity === 'danger' ? '!' : f.rank}</span>${f.text}${f.note ? ` — ${f.note}` : ''}</li>
+          `).join('')}
+        </ul>
+      </div>
+
+      <div class="rx-print-section">
+        <h4>Recommendations</h4>
+        ${report.recommendations.map((r, i) => `<p>${i + 1}. ${r}</p>`).join('')}
+      </div>
+
+      <div class="rx-print-signature">
+        <div class="rx-print-sig-line">Interpreting Dentist — Date</div>
+        <div class="rx-print-sig-line">Patient Acknowledgment — Date</div>
+      </div>
+
+      <div class="rx-print-footer">
+        <span>This report was generated with AI-assisted analysis (Qwen3-VL) and reviewed by the interpreting dentist.</span>
+        <span>Page 1 of 1</span>
+      </div>
+    `;
+
+    // Clone the visible image into the print slot
+    const visibleImg = document.querySelector('#rxImageContainer svg, #rxImageContainer img');
+    const printSlot = document.getElementById('printImageSlot');
+    if (visibleImg && printSlot) {
+      printSlot.innerHTML = '';
+      printSlot.appendChild(visibleImg.cloneNode(true));
+    }
+  }
+
+  /* ================================================================
+     LOAD DATA
+     ================================================================ */
+
+  async function loadAndRender(patientId) {
+    try {
+      const record = await loadPatientRecord(patientId);
+      currentPatient = record.patient;
+      currentRadiograph = record.radiographs[0] || null;
+      currentAnalysis = record.analysis;
+
+      if (!currentPatient) {
+        renderError(`Patient ${patientId} not found.`);
+        return;
+      }
+
+      renderPatientChip(currentPatient, currentRadiograph);
+
+      if (currentRadiograph) {
+        // If a real image URL exists, swap it in
+        if (currentRadiograph.imageUrl) {
+          const container = document.getElementById('rxImageContainer');
+          container.innerHTML = `<img src="${currentRadiograph.imageUrl}" alt="Radiograph ${currentRadiograph.id}" style="display:block; width:100%; height:auto;" />`;
+        }
+        renderCompareBar(currentRadiograph);
+      }
+
+      if (currentAnalysis) {
+        renderAnalysis(currentAnalysis);
+        renderFindings(currentAnalysis.findings);
+        renderMeasurements(currentAnalysis.measurements);
+        renderAnnotations(currentAnalysis.annotations);
+
+        // Build print report
+        const report = buildReport(currentPatient, currentRadiograph, currentAnalysis);
+        renderPrintReport(report);
+        document.getElementById('btnPrint').disabled = false;
+      } else {
+        document.getElementById('rxAnalysis').innerHTML = '<p>No analysis available.</p>';
+        document.getElementById('rxFindings').innerHTML = '<li><div class="rx-finding-text">No findings available.</div></li>';
+        document.getElementById('rxMeasurements').innerHTML = '<p style="color:var(--rx-text-dim); font-size:13px;">No measurements available.</p>';
+      }
+
+      // Show search if no default patient configured
+      if (!PMS_CONFIG.defaultPatientId) {
+        document.getElementById('rxSearch').style.display = 'flex';
+      }
+
+    } catch (err) {
+      console.error('[Radiograph Viewer]', err);
+      renderError(`Failed to load data: ${err.message}`);
+      document.getElementById('rxSearch').style.display = 'flex';
+    }
+  }
+
+  /* ================================================================
+     GLOBAL FUNCTIONS (exposed to inline onclick handlers)
+     ================================================================ */
+
+  window.loadPatientFromInput = async function() {
+    const input = document.getElementById('patientSearchInput');
+    const id = input.value.trim();
+    if (!id) return;
+    input.value = '';
+    await loadAndRender(id);
+  };
+
+  window.printReport = function() {
+    if (!currentPatient || !currentAnalysis) return;
+    // Re-render print area with latest data
+    const report = buildReport(currentPatient, currentRadiograph, currentAnalysis);
+    renderPrintReport(report);
+    window.print();
+  };
+
+  window.toggleInversions = function() {
+    inverted = !inverted;
+    document.getElementById('rxImageWrap').style.filter = inverted ? 'invert(1)' : 'none';
+  };
+
+  window.toggleCompare = function() {
+    comparing = !comparing;
+    document.getElementById('rxViewport').style.background = comparing
+      ? 'linear-gradient(90deg, #000 50%, #1a1a1a 50%)' : '#000';
+  };
+
+  /* ================================================================
+     INIT
+     ================================================================ */
+
+  // Header scroll shadow
   const header = document.getElementById('site-header');
   const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 24);
   window.addEventListener('scroll', onScroll, { passive:true });
   onScroll();
 
-  /* Print report */
-  function printReport(){
-    window.print();
-  }
-
-  /* Toggle compare chips */
-  document.querySelectorAll('.rx-compare-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      document.querySelectorAll('.rx-compare-chip').forEach(c => c.classList.remove('on'));
-      chip.classList.add('on');
-    });
+  // Allow Enter key in search
+  document.getElementById('patientSearchInput')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') window.loadPatientFromInput();
   });
 
-  /* Invert image (demo) */
-  let inverted = false;
-  function toggleInversions(){
-    inverted = !inverted;
-    document.getElementById('rxImageWrap').style.filter = inverted ? 'invert(1)' : 'none';
-  }
+  // Diagnostics in console
+  diagnose();
 
-  /* Toggle compare split (demo) */
-  let comparing = false;
-  function toggleCompare(){
-    comparing = !comparing;
-    document.getElementById('rxViewport').style.background = comparing
-      ? 'linear-gradient(90deg, #000 50%, #1a1a1a 50%)' : '#000';
-  }
+  // Load default or configured patient
+  const targetId = PMS_CONFIG.defaultPatientId || '78429';
+  loadAndRender(targetId);
 </script>
 
 </body>

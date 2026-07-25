@@ -1,0 +1,91 @@
+{
+  "radiographId": "RAD-2026-0725-001",
+  "overview": "Full-arch panoramic radiograph demonstrates bilateral endosseous implants in the mandibular first-molar positions (#19 and #30) with intact crestal bone levels and no signs of peri-implant radiolucency.",
+  "findings": [
+    {
+      "rank": 1,
+      "severity": "danger",
+      "tooth": "#25",
+      "text": "Periapical radiolucency #25 — possible failed RCT or persistent infection.",
+      "note": "Recommend CBCT + endodontic re-evaluation",
+      "confidence": 0.94
+    },
+    {
+      "rank": 2,
+      "severity": "warn",
+      "tooth": "#24",
+      "text": "Recurrent caries at mesial margin of #24 crown.",
+      "note": "Monitor or replace restoration",
+      "confidence": 0.89
+    },
+    {
+      "rank": 3,
+      "severity": "warn",
+      "tooth": "#14–16",
+      "text": "Posterior maxillary bone loss 3–4 mm (#14–16, #2–4).",
+      "note": "Continue perio maintenance q3mo",
+      "confidence": 0.91
+    },
+    {
+      "rank": 4,
+      "severity": "info",
+      "tooth": "#19, #30",
+      "text": "Implants #19 & #30 — stable, well-osseointegrated.",
+      "note": "Annual recall adequate",
+      "confidence": 0.97
+    },
+    {
+      "rank": 5,
+      "severity": "info",
+      "tooth": "Maxillary sinuses",
+      "text": "No signs of maxillary sinus pathology.",
+      "note": "Within normal limits",
+      "confidence": 0.95
+    }
+  ],
+  "paragraphs": [
+    {
+      "heading": "Panoramic overview",
+      "text": "Full-arch panoramic radiograph demonstrates bilateral endosseous implants in the mandibular first-molar positions (#19 and #30) with intact crestal bone levels and no signs of peri-implant radiolucency.",
+      "confidence": null
+    },
+    {
+      "heading": "Periodontal status",
+      "text": "Generalized horizontal bone loss of approximately 3–4 mm is present in the posterior maxilla. Anterior regions show preserved interdental septa.",
+      "confidence": 0.91
+    },
+    {
+      "heading": "Endodontic finding",
+      "text": "Tooth #25 exhibits a well-defined periapical radiolucency measuring ~6 × 8 mm. Prior root canal therapy is present on #24 with evidence of recurrent decay at the mesial margin.",
+      "confidence": 0.87
+    }
+  ],
+  "measurements": [
+    { "label": "Implant #19 crestal bone", "value": "1.2 mm" },
+    { "label": "Implant #30 crestal bone", "value": "1.4 mm" },
+    { "label": "#25 periapical lesion", "value": "6.1 × 8.3 mm" },
+    { "label": "Mandibular canal clearance", "value": "4.8 mm" }
+  ],
+  "annotations": [
+    { "id": "ann-1", "x": 28, "y": 30, "label": "Implant #19 — Osseointegrated", "severity": "info" },
+    { "id": "ann-2", "x": 62, "y": 30, "label": "Implant #30 — Osseointegrated", "severity": "info" },
+    { "id": "ann-3", "x": 44, "y": 68, "label": "Root canal #24 — Recurrent decay", "severity": "warn" },
+    { "id": "ann-4", "x": 52, "y": 65, "label": "#25 — Periapical radiolucency", "severity": "danger" },
+    { "id": "ann-5", "x": 36, "y": 36, "label": "#14 — Bone loss 3-4 mm", "severity": "warn" }
+  ],
+  "report": {
+    "clinicalImpressions": [
+      "Panoramic radiograph dated July 25, 2026, reviewed with AI-assisted analysis. Bilateral endosseous implants are present in the mandibular first-molar positions (#19 and #30). Both implants demonstrate stable crestal bone levels without evidence of peri-implant radiolucency, consistent with successful osseointegration.",
+      "Tooth #25 demonstrates a well-circumscribed periapical radiolucency measuring approximately 6 × 8 mm. Given the size and well-defined nature of this lesion, endodontic re-evaluation with cone-beam CT is recommended to assess for persistent infection, cystic change, or vertical root fracture.",
+      "Tooth #24 has undergone prior root canal therapy. A radiolucent defect is noted at the mesial margin of the existing crown, suggestive of recurrent caries. Clinical correlation and possible restoration replacement should be considered.",
+      "Generalized horizontal bone loss of 3–4 mm is noted in the posterior maxillary sextants. This is consistent with mild chronic periodontitis. Current periodontal maintenance every three months is appropriate and should be continued."
+    ],
+    "recommendations": [
+      "Schedule CBCT imaging of tooth #25 to characterize periapical lesion and rule out vertical root fracture.",
+      "Endodontic re-evaluation of #25; consider nonsurgical retreatment or apical surgery depending on CBCT findings.",
+      "Evaluate #24 crown margin clinically; replace restoration if recurrent caries is confirmed.",
+      "Continue periodontal maintenance every three months with routine radiographic surveillance.",
+      "Annual panoramic recall for implant #19 and #30 monitoring."
+    ]
+  }
+}
