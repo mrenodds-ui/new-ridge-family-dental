@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Radiograph Viewer — New Ridge Family Dental</title>
+<meta name="description" content="Staff radiograph viewer with AI analysis and patient report printing." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+<style>
+  /* ======== RADIOGRAPH VIEWER — DARK MEDICAL THEME ======== */
+  :root{
+    --rx-bg:#0F1113;
+    --rx-panel:#181B1E;
+    --rx-border:#2A2E33;
+    --rx-text:#F0F0F0;
+    --rx-text-dim:#A0A8B0;
+    --rx-accent:#6BB5FF;
+    --rx-accent-soft:#4A8FD4;
+    --rx-warn:#FFB86C;
+    --rx-danger:#FF6B6B;
+    --rx-success:#7EE787;
+    --rx-grid:rgba(255,255,255,.06);
+  }
+
+  /* ----- viewer layout ----- */
+  .rx-page{ background:var(--rx-bg); color:var(--rx-text); min-height:100vh; }
+  .rx-page .topbar{ background:var(--rx-bg); color:var(--rx-text-dim); border-bottom:1px solid var(--rx-border); }
+  .rx-page header.scrolled{ background:rgba(15,17,19,.94); border-bottom-color:var(--rx-border); }
+  .rx-page .nav-links a{ color:var(--rx-text-dim); }
+  .rx-page .nav-links a:hover{ color:var(--rx-text); }
+  .rx-page .nav-links a.active{ color:var(--rx-text); }
+  .rx-page .brand .wordmark{ color:var(--rx-text); }
+  .rx-page .brand .wordmark small{ color:var(--rx-text-dim); }
+
+  .rx-toolbar{
+    display:flex; align-items:center; justify-content:space-between; gap:24px;
+    padding:18px var(--gutter); border-bottom:1px solid var(--rx-border);
+    background:var(--rx-panel);
+    position:sticky; top:73px; z-index:40;
+  }
+  .rx-patient-chip{
+    display:flex; align-items:center; gap:18px;
+  }
+  .rx-avatar{
+    width:42px; height:42px; border-radius:50%;
+    background:linear-gradient(135deg,var(--rx-accent-soft),var(--rx-accent));
+    display:grid; place-items:center;
+    font-family:var(--serif); font-weight:500; font-size:16px; color:#fff;
+  }
+  .rx-patient-meta h4{ font-family:var(--sans); font-weight:600; font-size:15px; color:var(--rx-text); }
+  .rx-patient-meta span{ font-family:var(--mono); font-size:11px; color:var(--rx-text-dim); letter-spacing:.08em; }
+
+  .rx-tools{ display:flex; align-items:center; gap:12px; }
+  .rx-tool-btn{
+    background:transparent; border:1px solid var(--rx-border); color:var(--rx-text-dim);
+    font-family:var(--sans); font-size:12px; font-weight:500;
+    padding:9px 18px; border-radius:6px; cursor:pointer;
+    transition:all .2s ease; display:inline-flex; align-items:center; gap:8px;
+  }
+  .rx-tool-btn:hover{ border-color:var(--rx-accent); color:var(--rx-accent); background:rgba(107,181,255,.08); }
+  .rx-tool-btn.primary{ background:var(--rx-accent); color:#0F1113; border-color:var(--rx-accent); font-weight:600; }
+  .rx-tool-btn.primary:hover{ background:#8ECAFF; }
+
+  /* ----- main split ----- */
+  .rx-main{
+    display:grid; grid-template-columns:1fr 380px; min-height:calc(100vh - 140px);
+  }
+  @media (max-width:1100px){ .rx-main{ grid-template-columns:1fr; } }
+
+  /* ----- image canvas ----- */
+  .rx-viewport{
+    position:relative; background:#000;
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+  }
+  .rx-viewport::before{
+    content:""; position:absolute; inset:0;
+    background-image:
+      linear-gradient(var(--rx-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--rx-grid) 1px, transparent 1px);
+    background-size:40px 40px;
+    pointer-events:none; z-index:1;
+  }
+  .rx-image-wrap{
+    position:relative; z-index:2;
+    max-width:92%; max-height:88vh;
+    border:1px solid var(--rx-border); border-radius:4px;
+    overflow:hidden; box-shadow:0 24px 64px rgba(0,0,0,.6);
+  }
+  .rx-image-wrap img{ display:block; width:100%; height:auto; }
+  .rx-image-wrap svg{ display:block; width:100%; height:auto; }
+
+  /* annotations overlay */
+  .rx-annotations{
+    position:absolute; inset:0; z-index:3; pointer-events:none;
+  }
+  .rx-ann{
+    position:absolute; pointer-events:auto; cursor:pointer;
+    transition:transform .2s ease;
+  }
+  .rx-ann:hover{ transform:scale(1.15); }
+  .rx-ann-dot{
+    width:18px; height:18px; border-radius:50%;
+    border:2px solid var(--rx-accent);
+    background:rgba(107,181,255,.25);
+    box-shadow:0 0 12px rgba(107,181,255,.4);
+    position:relative;
+  }
+  .rx-ann-dot.warn{ border-color:var(--rx-warn); background:rgba(255,184,108,.25); box-shadow:0 0 12px rgba(255,184,108,.4); }
+  .rx-ann-dot.danger{ border-color:var(--rx-danger); background:rgba(255,107,107,.25); box-shadow:0 0 12px rgba(255,107,107,.4); }
+  .rx-ann-label{
+    position:absolute; left:26px; top:-4px;
+    font-family:var(--mono); font-size:10px; letter-spacing:.06em;
+    color:#fff; background:rgba(0,0,0,.75);
+    padding:3px 10px; border-radius:4px; white-space:nowrap;
+    opacity:0; transform:translateX(-6px); transition:all .25s ease;
+  }
+  .rx-ann:hover .rx-ann-label{ opacity:1; transform:translateX(0); }
+
+  /* ----- side panel ----- */
+  .rx-panel{
+    background:var(--rx-panel); border-left:1px solid var(--rx-border);
+    display:flex; flex-direction:column; overflow-y:auto;
+  }
+  .rx-panel-section{
+    padding:26px 28px; border-bottom:1px solid var(--rx-border);
+  }
+  .rx-panel-section:last-child{ border-bottom:none; }
+  .rx-panel h3{
+    font-family:var(--mono); font-size:10.5px; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--rx-text-dim); margin-bottom:18px; display:flex; align-items:center; gap:10px;
+  }
+  .rx-panel h3 .dot{
+    width:6px; height:6px; border-radius:50%; background:var(--rx-accent);
+    box-shadow:0 0 8px var(--rx-accent);
+  }
+
+  /* AI analysis text — ALL WHITE */
+  .rx-analysis{
+    font-family:var(--sans); font-size:14.5px; line-height:1.75;
+    color:#FFFFFF;
+  }
+  .rx-analysis p + p{ margin-top:12px; }
+  .rx-analysis strong{ color:var(--rx-accent); font-weight:600; }
+  .rx-analysis .confidence{
+    display:inline-flex; align-items:center; gap:6px;
+    font-family:var(--mono); font-size:10px; color:var(--rx-text-dim);
+    margin-left:8px;
+  }
+
+  /* findings list */
+  .rx-findings{ list-style:none; }
+  .rx-findings li{
+    display:flex; gap:14px; align-items:flex-start;
+    padding:14px 0; border-bottom:1px solid var(--rx-border);
+  }
+  .rx-findings li:last-child{ border-bottom:none; }
+  .rx-sev{
+    flex-shrink:0; width:20px; height:20px; border-radius:50%;
+    display:grid; place-items:center;
+    font-family:var(--mono); font-size:10px; font-weight:600;
+    margin-top:2px;
+  }
+  .rx-sev.info{ background:rgba(107,181,255,.15); color:var(--rx-accent); border:1px solid rgba(107,181,255,.3); }
+  .rx-sev.warn{ background:rgba(255,184,108,.15); color:var(--rx-warn); border:1px solid rgba(255,184,108,.3); }
+  .rx-sev.danger{ background:rgba(255,107,107,.15); color:var(--rx-danger); border:1px solid rgba(255,107,107,.3); }
+  .rx-finding-text{ font-size:14px; line-height:1.6; color:#FFFFFF; }
+  .rx-finding-text small{
+    display:block; font-family:var(--mono); font-size:10px; color:var(--rx-text-dim); margin-top:4px; letter-spacing:.04em;
+  }
+
+  /* measurements */
+  .rx-measure{ display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--rx-border); font-size:13.5px; }
+  .rx-measure:last-child{ border-bottom:none; }
+  .rx-measure .m-label{ color:var(--rx-text-dim); }
+  .rx-measure .m-val{ color:#FFFFFF; font-family:var(--mono); font-weight:500; }
+
+  /* comparison toggle */
+  .rx-compare-bar{
+    display:flex; gap:8px; margin-top:16px;
+  }
+  .rx-compare-chip{
+    font-family:var(--mono); font-size:10px; letter-spacing:.06em;
+    padding:6px 14px; border-radius:4px; border:1px solid var(--rx-border);
+    color:var(--rx-text-dim); cursor:pointer; transition:all .2s ease;
+  }
+  .rx-compare-chip:hover{ border-color:var(--rx-accent); color:var(--rx-accent); }
+  .rx-compare-chip.on{ background:rgba(107,181,255,.12); border-color:var(--rx-accent); color:var(--rx-accent); }
+
+  /* ======== PRINT REPORT STYLES ======== */
+  @media print {
+    @page { size: letter portrait; margin: .6in .7in; }
+
+    body *{ visibility:hidden; }
+    #rx-print-area, #rx-print-area *{ visibility:visible; }
+    #rx-print-area{
+      position:absolute; left:0; top:0; width:100%;
+      background:#fff !important; color:#242424 !important;
+      padding:0 !important; margin:0 !important;
+    }
+
+    .rx-print-header{
+      display:flex; justify-content:space-between; align-items:flex-start;
+      border-bottom:2px solid #AD8F66; padding-bottom:18px; margin-bottom:28px;
+    }
+    .rx-print-brand{ font-family:"Fraunces",Georgia,serif; font-size:22px; color:#242424; }
+    .rx-print-brand small{ display:block; font-family:"Geist Mono",monospace; font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:#6F6A61; margin-top:3px; }
+    .rx-print-meta{ text-align:right; font-family:"Geist Mono",monospace; font-size:10px; color:#6F6A61; line-height:1.8; }
+
+    .rx-print-patient{
+      display:grid; grid-template-columns:1fr 1fr 1fr;
+      gap:12px 32px; margin-bottom:28px;
+      font-size:13px;
+    }
+    .rx-print-patient .pp-row{ display:flex; justify-content:space-between; border-bottom:1px dashed #E3DACB; padding:6px 0; }
+    .rx-print-patient .pp-label{ color:#6F6A61; font-family:"Geist Mono",monospace; font-size:9px; letter-spacing:.1em; text-transform:uppercase; }
+    .rx-print-patient .pp-val{ color:#242424; font-weight:500; }
+
+    .rx-print-image{
+      text-align:center; margin-bottom:28px;
+      border:1px solid #E3DACB; padding:12px; background:#FAFAFA;
+    }
+    .rx-print-image img{ max-width:100%; height:auto; }
+    .rx-print-image figcaption{
+      font-family:"Geist Mono",monospace; font-size:9px; letter-spacing:.1em; text-transform:uppercase;
+      color:#979285; margin-top:8px;
+    }
+
+    .rx-print-section h4{
+      font-family:"Fraunces",Georgia,serif; font-weight:400; font-size:18px;
+      color:#242424; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid #E3DACB;
+    }
+    .rx-print-section p{ font-size:13px; line-height:1.7; color:#4A4A4A; margin-bottom:10px; }
+    .rx-print-findings{ list-style:none; margin:14px 0; }
+    .rx-print-findings li{
+      display:flex; gap:12px; align-items:flex-start;
+      padding:10px 0; border-bottom:1px solid #ECE5D8; font-size:13px; color:#4A4A4A;
+    }
+    .rx-print-findings li:last-child{ border-bottom:none; }
+    .rx-print-sev{
+      width:18px; height:18px; border-radius:50%; flex-shrink:0;
+      display:grid; place-items:center; font-family:"Geist Mono",monospace; font-size:9px; font-weight:600;
+    }
+    .rx-print-sev.info{ background:#E8F4FF; color:#2A7CC8; border:1px solid #B8D9F5; }
+    .rx-print-sev.warn{ background:#FFF4E5; color:#B87A2A; border:1px solid #F5D9B8; }
+    .rx-print-sev.danger{ background:#FFE8E8; color:#C82A2A; border:1px solid #F5B8B8; }
+
+    .rx-print-footer{
+      margin-top:40px; padding-top:16px; border-top:1px solid #E3DACB;
+      display:flex; justify-content:space-between; align-items:center;
+      font-family:"Geist Mono",monospace; font-size:9px; letter-spacing:.08em;
+      color:#979285;
+    }
+    .rx-print-signature{
+      margin-top:32px; display:flex; gap:48px;
+    }
+    .rx-print-sig-line{
+      flex:1; border-top:1px solid #242424; padding-top:6px;
+      font-family:"Geist Mono",monospace; font-size:9px; letter-spacing:.1em; text-transform:uppercase;
+      color:#6F6A61;
+    }
+
+    /* hide everything else */
+    .rx-page, .rx-toolbar, .rx-panel, .rx-viewport, header, footer, .topbar, .nav{ display:none !important; }
+  }
+
+  /* print preview area — hidden on screen */
+  #rx-print-area{ display:none; }
+  @media print{ #rx-print-area{ display:block !important; } }
+
+  /* responsive */
+  @media (max-width:1100px){
+    .rx-panel{ border-left:none; border-top:1px solid var(--rx-border); }
+    .rx-toolbar{ flex-wrap:wrap; gap:12px; }
+  }
+</style>
+</head>
+<body class="rx-page">
+
+<div class="grain" aria-hidden="true"></div>
+
+<div class="topbar">Now welcoming new patients <i>·</i> Wichita, Kansas <i>·</i> (316) 722-6060</div>
+
+<header id="site-header">
+  <div class="wrap nav">
+    <a class="brand" href="index.html" aria-label="New Ridge Family Dental — home">
+      <svg width="36" height="36" viewBox="0 0 38 38" fill="none" aria-hidden="true">
+        <circle cx="19" cy="19" r="17.2" stroke="#F0F0F0" stroke-width="1.4"/>
+        <circle cx="19" cy="19" r="13.4" stroke="#AD8F66" stroke-width=".8"/>
+        <text x="19" y="24.5" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-style="italic" font-weight="400" font-size="13.5" fill="#F0F0F0">NR</text>
+      </svg>
+      <span class="wordmark">New Ridge Family Dental<small>Michael Reno, DDS · Wichita, KS</small></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="new-patients.html">New Patients</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="insurance.html">Insurance &amp; Payment</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a class="active" href="staff.html">Staff</a></li>
+    </ul>
+    <a class="btn btn-solid" href="contact.html"><span>Request appointment</span><span class="arr">→</span></a>
+  </div>
+</header>
+
+<!-- ======== TOOLBAR ======== -->
+<div class="rx-toolbar">
+  <div class="rx-patient-chip">
+    <div class="rx-avatar">JD</div>
+    <div class="rx-patient-meta">
+      <h4>John Doe</h4>
+      <span>DOB: 04/12/1985 · ID: 78429 · Panoramic — 07/25/2026</span>
+    </div>
+  </div>
+  <div class="rx-tools">
+    <button class="rx-tool-btn" onclick="toggleCompare()" title="Toggle prior comparison">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+      Compare Prior
+    </button>
+    <button class="rx-tool-btn" onclick="toggleInversions()" title="Invert colors">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20 10 10 0 0 1 0-20"/></svg>
+      Invert
+    </button>
+    <button class="rx-tool-btn primary" onclick="printReport()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      Print Patient Report
+    </button>
+  </div>
+</div>
+
+<!-- ======== MAIN VIEWER ======== -->
+<div class="rx-main">
+
+  <!-- Viewport -->
+  <div class="rx-viewport" id="rxViewport">
+    <div class="rx-image-wrap" id="rxImageWrap">
+      <!-- Dental panoramic radiograph SVG placeholder -->
+      <svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg" style="max-width:900px;">
+        <defs>
+          <radialGradient id="boneGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#2A2E33"/>
+            <stop offset="100%" stop-color="#15171A"/>
+          </radialGradient>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+            <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <!-- Background -->
+        <rect width="800" height="400" fill="url(#boneGrad)"/>
+
+        <!-- Mandible / Maxilla bone structure -->
+        <path d="M 60,200 Q 120,100 200,110 Q 280,120 320,130 Q 360,140 400,140 Q 440,140 480,130 Q 520,120 600,110 Q 680,100 740,200 Q 700,320 600,310 Q 520,300 480,290 Q 440,280 400,280 Q 360,280 320,290 Q 280,300 200,310 Q 100,320 60,200 Z" fill="#1E2226" stroke="#3A3F45" stroke-width="1.5"/>
+
+        <!-- Upper teeth roots -->
+        <g fill="#C8D0D8" opacity="0.85">
+          <!-- Upper left -->
+          <rect x="135" y="125" width="10" height="35" rx="4"/>
+          <rect x="155" y="128" width="12" height="38" rx="5"/>
+          <rect x="178" y="132" width="14" height="42" rx="5"/>
+          <rect x="205" y="136" width="16" height="48" rx="6"/>
+          <rect x="235" y="140" width="18" height="52" rx="7"/>
+          <rect x="268" y="144" width="16" height="50" rx="6"/>
+          <rect x="298" y="146" width="14" height="46" rx="5"/>
+          <rect x="325" y="148" width="12" height="40" rx="5"/>
+          <!-- Upper center -->
+          <rect x="350" y="148" width="10" height="35" rx="4"/>
+          <rect x="370" y="148" width="10" height="35" rx="4"/>
+          <rect x="390" y="148" width="10" height="35" rx="4"/>
+          <!-- Upper right -->
+          <rect x="420" y="148" width="12" height="40" rx="5"/>
+          <rect x="445" y="146" width="14" height="46" rx="5"/>
+          <rect x="473" y="144" width="16" height="50" rx="6"/>
+          <rect x="503" y="140" width="18" height="52" rx="7"/>
+          <rect x="535" y="136" width="16" height="48" rx="6"/>
+          <rect x="562" y="132" width="14" height="42" rx="5"/>
+          <rect x="587" y="128" width="12" height="38" rx="5"/>
+          <rect x="610" y="125" width="10" height="35" rx="4"/>
+        </g>
+
+        <!-- Lower teeth roots -->
+        <g fill="#C8D0D8" opacity="0.85">
+          <!-- Lower left -->
+          <rect x="140" y="270" width="10" height="32" rx="4"/>
+          <rect x="160" y="266" width="12" height="36" rx="5"/>
+          <rect x="182" y="262" width="14" height="40" rx="5"/>
+          <rect x="208" y="258" width="16" height="46" rx="6"/>
+          <rect x="238" y="254" width="18" height="50" rx="7"/>
+          <rect x="270" y="250" width="16" height="48" rx="6"/>
+          <rect x="300" y="248" width="14" height="44" rx="5"/>
+          <rect x="327" y="246" width="12" height="38" rx="5"/>
+          <!-- Lower center -->
+          <rect x="352" y="246" width="10" height="34" rx="4"/>
+          <rect x="372" y="246" width="10" height="34" rx="4"/>
+          <rect x="392" y="246" width="10" height="34" rx="4"/>
+          <!-- Lower right -->
+          <rect x="422" y="246" width="12" height="38" rx="5"/>
+          <rect x="447" y="248" width="14" height="44" rx="5"/>
+          <rect x="475" y="250" width="16" height="48" rx="6"/>
+          <rect x="505" y="254" width="18" height="50" rx="7"/>
+          <rect x="537" y="258" width="16" height="46" rx="6"/>
+          <rect x="564" y="262" width="14" height="40" rx="5"/>
+          <rect x="589" y="266" width="12" height="36" rx="5"/>
+          <rect x="612" y="270" width="10" height="32" rx="4"/>
+        </g>
+
+        <!-- Implants (bright white) -->
+        <g fill="#FFFFFF" filter="url(#glow)">
+          <rect x="233" y="142" width="20" height="56" rx="3"/>
+          <rect x="505" y="142" width="20" height="56" rx="3"/>
+        </g>
+        <!-- Implant abutments -->
+        <g fill="#E0E6EC">
+          <rect x="236" y="138" width="14" height="8" rx="2"/>
+          <rect x="508" y="138" width="14" height="8" rx="2"/>
+        </g>
+
+        <!-- Crown restoration -->
+        <g fill="#F5F5F5" opacity="0.9">
+          <rect x="230" y="130" width="26" height="14" rx="4"/>
+          <rect x="502" y="130" width="26" height="14" rx="4"/>
+        </g>
+
+        <!-- Annotations (in-image markers for demo) -->
+        <circle cx="243" cy="115" r="10" fill="none" stroke="#6BB5FF" stroke-width="1.5" opacity="0.5"/>
+        <circle cx="515" cy="115" r="10" fill="none" stroke="#6BB5FF" stroke-width="1.5" opacity="0.5"/>
+
+        <!-- Mandibular canal -->
+        <path d="M 120,280 Q 250,260 400,265 Q 550,260 680,280" fill="none" stroke="#4A5058" stroke-width="2" stroke-dasharray="6 4" opacity="0.5"/>
+
+        <!-- Sinus floor -->
+        <path d="M 200,95 Q 300,85 400,88 Q 500,85 600,95" fill="none" stroke="#4A5058" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.4"/>
+
+        <!-- Text labels on image -->
+        <text x="400" y="380" text-anchor="middle" font-family="Geist Mono, monospace" font-size="10" fill="#6A7078" letter-spacing="0.1em">PANORAMIC RADIOGRAPH — 07/25/2026</text>
+      </svg>
+
+      <!-- Annotation overlays -->
+      <div class="rx-annotations" id="rxAnnotations">
+        <div class="rx-ann" style="left:28%; top:30%;">
+          <div class="rx-ann-dot"></div>
+          <div class="rx-ann-label">Implant #19 — Osseointegrated</div>
+        </div>
+        <div class="rx-ann" style="left:62%; top:30%;">
+          <div class="rx-ann-dot"></div>
+          <div class="rx-ann-label">Implant #30 — Osseointegrated</div>
+        </div>
+        <div class="rx-ann" style="left:44%; top:68%;">
+          <div class="rx-ann-dot warn"></div>
+          <div class="rx-ann-label">Root canal #24 — Recurrent decay</div>
+        </div>
+        <div class="rx-ann" style="left:52%; top:65%;">
+          <div class="rx-ann-dot danger"></div>
+          <div class="rx-ann-label">#25 — Periapical radiolucency</div>
+        </div>
+        <div class="rx-ann" style="left:36%; top:36%;">
+          <div class="rx-ann-dot warn"></div>
+          <div class="rx-ann-label">#14 — Bone loss 3-4 mm</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Side Panel -->
+  <div class="rx-panel">
+
+    <!-- AI Analysis -->
+    <div class="rx-panel-section">
+      <h3><span class="dot"></span>AI Analysis — Qwen3-VL</h3>
+      <div class="rx-analysis">
+        <p>
+          <strong>Panoramic overview:</strong> Full-arch panoramic radiograph demonstrates bilateral endosseous implants in the mandibular first-molar positions (#19 and #30) with intact crestal bone levels and no signs of peri-implant radiolucency.
+        </p>
+        <p>
+          <strong>Periodontal status:</strong> Generalized horizontal bone loss of approximately 3–4 mm is present in the posterior maxilla. Anterior regions show preserved interdental septa.
+          <span class="confidence">Confidence: 91%</span>
+        </p>
+        <p>
+          <strong>Endodontic finding:</strong> Tooth #25 exhibits a well-defined periapical radiolucency measuring ~6 × 8 mm. Prior root canal therapy is present on #24 with evidence of recurrent decay at the mesial margin.
+          <span class="confidence">Confidence: 87%</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Findings -->
+    <div class="rx-panel-section">
+      <h3><span class="dot" style="background:var(--rx-warn); box-shadow:0 0 8px var(--rx-warn);"></span>Prioritized Findings</h3>
+      <ul class="rx-findings">
+        <li>
+          <span class="rx-sev danger">!</span>
+          <div class="rx-finding-text">
+            Periapical radiolucency #25 — possible failed RCT or persistent infection.
+            <small>Recommend CBCT + endodontic re-evaluation</small>
+          </div>
+        </li>
+        <li>
+          <span class="rx-sev warn">2</span>
+          <div class="rx-finding-text">
+            Recurrent caries at mesial margin of #24 crown.
+            <small>Monitor or replace restoration</small>
+          </div>
+        </li>
+        <li>
+          <span class="rx-sev warn">3</span>
+          <div class="rx-finding-text">
+            Posterior maxillary bone loss 3–4 mm (#14–16, #2–4).
+            <small>Continue perio maintenance q3mo</small>
+          </div>
+        </li>
+        <li>
+          <span class="rx-sev info">4</span>
+          <div class="rx-finding-text">
+            Implants #19 &amp; #30 — stable, well-osseointegrated.
+            <small>Annual recall adequate</small>
+          </div>
+        </li>
+        <li>
+          <span class="rx-sev info">5</span>
+          <div class="rx-finding-text">
+            No signs of maxillary sinus pathology.
+            <small>Within normal limits</small>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Measurements -->
+    <div class="rx-panel-section">
+      <h3><span class="dot" style="background:var(--rx-success); box-shadow:0 0 8px var(--rx-success);"></span>Auto-Measurements</h3>
+      <div class="rx-measure">
+        <span class="m-label">Implant #19 crestal bone</span>
+        <span class="m-val">1.2 mm</span>
+      </div>
+      <div class="rx-measure">
+        <span class="m-label">Implant #30 crestal bone</span>
+        <span class="m-val">1.4 mm</span>
+      </div>
+      <div class="rx-measure">
+        <span class="m-label">#25 periapical lesion</span>
+        <span class="m-val">6.1 × 8.3 mm</span>
+      </div>
+      <div class="rx-measure">
+        <span class="m-label">Mandibular canal clearance</span>
+        <span class="m-val">4.8 mm</span>
+      </div>
+    </div>
+
+    <!-- Compare -->
+    <div class="rx-panel-section">
+      <h3><span class="dot" style="background:var(--rx-text-dim); box-shadow:none;"></span>Comparison</h3>
+      <div class="rx-compare-bar">
+        <div class="rx-compare-chip on">Current — 07/25/2026</div>
+        <div class="rx-compare-chip">Prior — 01/14/2025</div>
+        <div class="rx-compare-chip">Baseline — 06/03/2022</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ======== PRINT REPORT (hidden until print) ======== -->
+<div id="rx-print-area">
+
+  <!-- Letterhead -->
+  <div class="rx-print-header">
+    <div class="rx-print-brand">
+      New Ridge Family Dental
+      <small>Michael Reno, DDS · 2135 North Ridge Rd Ste 700, Wichita, KS 67212 · (316) 722-6060</small>
+    </div>
+    <div class="rx-print-meta">
+      RADIOGRAPH REPORT<br/>
+      Generated: July 25, 2026<br/>
+      Exam: Panoramic Radiograph
+    </div>
+  </div>
+
+  <!-- Patient -->
+  <div class="rx-print-patient">
+    <div class="pp-row"><span class="pp-label">Patient</span><span class="pp-val">John Doe</span></div>
+    <div class="pp-row"><span class="pp-label">Date of Birth</span><span class="pp-val">April 12, 1985</span></div>
+    <div class="pp-row"><span class="pp-label">Patient ID</span><span class="pp-val">NR-78429</span></div>
+    <div class="pp-row"><span class="pp-label">Date of Exam</span><span class="pp-val">July 25, 2026</span></div>
+    <div class="pp-row"><span class="pp-label">Referring Dentist</span><span class="pp-val">Michael Reno, DDS</span></div>
+    <div class="pp-row"><span class="pp-label">Report ID</span><span class="pp-val">RAD-2026-0725-001</span></div>
+  </div>
+
+  <!-- Image -->
+  <figure class="rx-print-image">
+    <svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg" style="max-width:640px;">
+      <defs>
+        <radialGradient id="pbone" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#EAEAEA"/><stop offset="100%" stop-color="#D5D5D5"/></radialGradient>
+      </defs>
+      <rect width="800" height="400" fill="url(#pbone)"/>
+      <path d="M 60,200 Q 120,100 200,110 Q 280,120 320,130 Q 360,140 400,140 Q 440,140 480,130 Q 520,120 600,110 Q 680,100 740,200 Q 700,320 600,310 Q 520,300 480,290 Q 440,280 400,280 Q 360,280 320,290 Q 280,300 200,310 Q 100,320 60,200 Z" fill="#C8C8C8" stroke="#999" stroke-width="1"/>
+      <g fill="#F0F0F0">
+        <rect x="135" y="125" width="10" height="35" rx="4"/><rect x="155" y="128" width="12" height="38" rx="5"/>
+        <rect x="178" y="132" width="14" height="42" rx="5"/><rect x="205" y="136" width="16" height="48" rx="6"/>
+        <rect x="235" y="140" width="18" height="52" rx="7"/><rect x="268" y="144" width="16" height="50" rx="6"/>
+        <rect x="298" y="146" width="14" height="46" rx="5"/><rect x="325" y="148" width="12" height="40" rx="5"/>
+        <rect x="350" y="148" width="10" height="35" rx="4"/><rect x="370" y="148" width="10" height="35" rx="4"/>
+        <rect x="390" y="148" width="10" height="35" rx="4"/><rect x="420" y="148" width="12" height="40" rx="5"/>
+        <rect x="445" y="146" width="14" height="46" rx="5"/><rect x="473" y="144" width="16" height="50" rx="6"/>
+        <rect x="503" y="140" width="18" height="52" rx="7"/><rect x="535" y="136" width="16" height="48" rx="6"/>
+        <rect x="562" y="132" width="14" height="42" rx="5"/><rect x="587" y="128" width="12" height="38" rx="5"/>
+        <rect x="610" y="125" width="10" height="35" rx="4"/>
+      </g>
+      <g fill="#F0F0F0">
+        <rect x="140" y="270" width="10" height="32" rx="4"/><rect x="160" y="266" width="12" height="36" rx="5"/>
+        <rect x="182" y="262" width="14" height="40" rx="5"/><rect x="208" y="258" width="16" height="46" rx="6"/>
+        <rect x="238" y="254" width="18" height="50" rx="7"/><rect x="270" y="250" width="16" height="48" rx="6"/>
+        <rect x="300" y="248" width="14" height="44" rx="5"/><rect x="327" y="246" width="12" height="38" rx="5"/>
+        <rect x="352" y="246" width="10" height="34" rx="4"/><rect x="372" y="246" width="10" height="34" rx="4"/>
+        <rect x="392" y="246" width="10" height="34" rx="4"/><rect x="422" y="246" width="12" height="38" rx="5"/>
+        <rect x="447" y="248" width="14" height="44" rx="5"/><rect x="475" y="250" width="16" height="48" rx="6"/>
+        <rect x="505" y="254" width="18" height="50" rx="7"/><rect x="537" y="258" width="16" height="46" rx="6"/>
+        <rect x="564" y="262" width="14" height="40" rx="5"/><rect x="589" y="266" width="12" height="36" rx="5"/>
+        <rect x="612" y="270" width="10" height="32" rx="4"/>
+      </g>
+      <g fill="#FFFFFF" stroke="#999" stroke-width="0.5"><rect x="233" y="142" width="20" height="56" rx="3"/><rect x="505" y="142" width="20" height="56" rx="3"/></g>
+      <g fill="#E8E8E8"><rect x="236" y="138" width="14" height="8" rx="2"/><rect x="508" y="138" width="14" height="8" rx="2"/></g>
+      <g fill="#FAFAFA" stroke="#CCC" stroke-width="0.5"><rect x="230" y="130" width="26" height="14" rx="4"/><rect x="502" y="130" width="26" height="14" rx="4"/></g>
+      <circle cx="243" cy="115" r="10" fill="none" stroke="#2A7CC8" stroke-width="1.5"/>
+      <circle cx="515" cy="115" r="10" fill="none" stroke="#2A7CC8" stroke-width="1.5"/>
+      <path d="M 120,280 Q 250,260 400,265 Q 550,260 680,280" fill="none" stroke="#AAA" stroke-width="1.5" stroke-dasharray="6 4"/>
+      <path d="M 200,95 Q 300,85 400,88 Q 500,85 600,95" fill="none" stroke="#AAA" stroke-width="1" stroke-dasharray="4 3"/>
+    </svg>
+    <figcaption>Figure 1 — Panoramic radiograph, mandibular and maxillary arches with bilateral implant restorations.</figcaption>
+  </figure>
+
+  <!-- Report Body -->
+  <div class="rx-print-section">
+    <h4>Clinical Impressions</h4>
+    <p>
+      Panoramic radiograph dated July 25, 2026, reviewed with AI-assisted analysis.
+      Bilateral endosseous implants are present in the mandibular first-molar positions (#19 and #30).
+      Both implants demonstrate stable crestal bone levels without evidence of peri-implant radiolucency,
+      consistent with successful osseointegration.
+    </p>
+    <p>
+      Tooth #25 demonstrates a well-circumscribed periapical radiolucency measuring approximately 6 × 8 mm.
+      Given the size and well-defined nature of this lesion, endodontic re-evaluation with cone-beam CT is
+      recommended to assess for persistent infection, cystic change, or vertical root fracture.
+    </p>
+    <p>
+      Tooth #24 has undergone prior root canal therapy. A radiolucent defect is noted at the mesial margin
+      of the existing crown, suggestive of recurrent caries. Clinical correlation and possible restoration
+      replacement should be considered.
+    </p>
+    <p>
+      Generalized horizontal bone loss of 3–4 mm is noted in the posterior maxillary sextants. This is
+      consistent with mild chronic periodontitis. Current periodontal maintenance every three months is
+      appropriate and should be continued.
+    </p>
+  </div>
+
+  <div class="rx-print-section">
+    <h4>Findings Summary</h4>
+    <ul class="rx-print-findings">
+      <li><span class="rx-print-sev danger">!</span>Periapical radiolucency #25 — recommend CBCT and endodontic consult.</li>
+      <li><span class="rx-print-sev warn">2</span>Recurrent caries #24 mesial margin — monitor or replace restoration.</li>
+      <li><span class="rx-print-sev warn">3</span>Posterior maxillary bone loss 3–4 mm — continue q3mo perio maintenance.</li>
+      <li><span class="rx-print-sev info">4</span>Implants #19 &amp; #30 — stable, annual recall adequate.</li>
+      <li><span class="rx-print-sev info">5</span>Maxillary sinuses clear — no pathology noted.</li>
+    </ul>
+  </div>
+
+  <div class="rx-print-section">
+    <h4>Recommendations</h4>
+    <p>1. Schedule CBCT imaging of tooth #25 to characterize periapical lesion and rule out vertical root fracture.</p>
+    <p>2. Endodontic re-evaluation of #25; consider nonsurgical retreatment or apical surgery depending on CBCT findings.</p>
+    <p>3. Evaluate #24 crown margin clinically; replace restoration if recurrent caries is confirmed.</p>
+    <p>4. Continue periodontal maintenance every three months with routine radiographic surveillance.</p>
+    <p>5. Annual panoramic recall for implant #19 and #30 monitoring.</p>
+  </div>
+
+  <!-- Signature block -->
+  <div class="rx-print-signature">
+    <div class="rx-print-sig-line">Interpreting Dentist — Date</div>
+    <div class="rx-print-sig-line">Patient Acknowledgment — Date</div>
+  </div>
+
+  <div class="rx-print-footer">
+    <span>This report was generated with AI-assisted analysis (Qwen3-VL) and reviewed by the interpreting dentist.</span>
+    <span>Page 1 of 1</span>
+  </div>
+
+</div>
+
+<script>
+  /* Header scroll shadow */
+  const header = document.getElementById('site-header');
+  const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 24);
+  window.addEventListener('scroll', onScroll, { passive:true });
+  onScroll();
+
+  /* Print report */
+  function printReport(){
+    window.print();
+  }
+
+  /* Toggle compare chips */
+  document.querySelectorAll('.rx-compare-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.rx-compare-chip').forEach(c => c.classList.remove('on'));
+      chip.classList.add('on');
+    });
+  });
+
+  /* Invert image (demo) */
+  let inverted = false;
+  function toggleInversions(){
+    inverted = !inverted;
+    document.getElementById('rxImageWrap').style.filter = inverted ? 'invert(1)' : 'none';
+  }
+
+  /* Toggle compare split (demo) */
+  let comparing = false;
+  function toggleCompare(){
+    comparing = !comparing;
+    document.getElementById('rxViewport').style.background = comparing
+      ? 'linear-gradient(90deg, #000 50%, #1a1a1a 50%)' : '#000';
+  }
+</script>
+
+</body>
+</html>
