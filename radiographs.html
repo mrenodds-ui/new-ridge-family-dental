@@ -10,99 +10,98 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="css/style.css" />
 <style>
-  /* ======== RADIOGRAPH VIEWER — DARK MEDICAL THEME ======== */
+  /* ═══════════════════════════════════════════════════════════════
+     RADIOGRAPH VIEWER vNEXT — Dark Medical Theme
+     ═══════════════════════════════════════════════════════════════ */
   :root{
-    --rx-bg:#0F1113;
-    --rx-panel:#181B1E;
-    --rx-border:#2A2E33;
+    --rx-bg:#0B0D0F;
+    --rx-panel:#131619;
+    --rx-elev:#1A1D21;
+    --rx-border:#25292E;
+    --rx-border-light:#2E333A;
     --rx-text:#F0F0F0;
-    --rx-text-dim:#A0A8B0;
+    --rx-text-dim:#8A929C;
+    --rx-text-muted:#5A626C;
     --rx-accent:#6BB5FF;
     --rx-accent-soft:#4A8FD4;
+    --rx-accent-glow:rgba(107,181,255,.12);
     --rx-warn:#FFB86C;
+    --rx-warn-glow:rgba(255,184,108,.12);
     --rx-danger:#FF6B6B;
+    --rx-danger-glow:rgba(255,107,107,.12);
     --rx-success:#7EE787;
-    --rx-grid:rgba(255,255,255,.06);
+    --rx-success-glow:rgba(126,231,135,.12);
+    --rx-purple:#C792EA;
+    --rx-grid:rgba(255,255,255,.04);
+    --radius:8px;
+    --radius-sm:6px;
+    --mono:"Geist Mono",monospace;
+    --sans:"Geist",system-ui,sans-serif;
+    --serif:"Fraunces",Georgia,serif;
   }
 
-  /* ----- viewer layout ----- */
+  /* ----- base ----- */
   .rx-page{ background:var(--rx-bg); color:var(--rx-text); min-height:100vh; }
   .rx-page .topbar{ background:var(--rx-bg); color:var(--rx-text-dim); border-bottom:1px solid var(--rx-border); }
-  .rx-page header.scrolled{ background:rgba(15,17,19,.94); border-bottom-color:var(--rx-border); }
+  .rx-page header.scrolled{ background:rgba(11,13,15,.94); border-bottom-color:var(--rx-border); }
   .rx-page .nav-links a{ color:var(--rx-text-dim); }
   .rx-page .nav-links a:hover{ color:var(--rx-text); }
   .rx-page .nav-links a.active{ color:var(--rx-text); }
   .rx-page .brand .wordmark{ color:var(--rx-text); }
   .rx-page .brand .wordmark small{ color:var(--rx-text-dim); }
 
+  /* ----- toolbar ----- */
   .rx-toolbar{
-    display:flex; align-items:center; justify-content:space-between; gap:24px;
-    padding:18px var(--gutter); border-bottom:1px solid var(--rx-border);
-    background:var(--rx-panel);
-    position:sticky; top:73px; z-index:40;
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    padding:12px var(--gutter,24px); border-bottom:1px solid var(--rx-border);
+    background:var(--rx-panel); position:sticky; top:73px; z-index:40;
   }
-  .rx-patient-chip{
-    display:flex; align-items:center; gap:18px;
-  }
+  .rx-patient-chip{ display:flex; align-items:center; gap:14px; }
   .rx-avatar{
-    width:42px; height:42px; border-radius:50%;
+    width:40px; height:40px; border-radius:50%;
     background:linear-gradient(135deg,var(--rx-accent-soft),var(--rx-accent));
     display:grid; place-items:center;
-    font-family:var(--serif); font-weight:500; font-size:16px; color:#fff;
+    font-family:var(--serif); font-weight:500; font-size:15px; color:#fff;
+    box-shadow:0 0 16px rgba(107,181,255,.2);
   }
-  .rx-patient-meta h4{ font-family:var(--sans); font-weight:600; font-size:15px; color:var(--rx-text); }
-  .rx-patient-meta span{ font-family:var(--mono); font-size:11px; color:var(--rx-text-dim); letter-spacing:.08em; }
+  .rx-patient-meta h4{ font-family:var(--sans); font-weight:600; font-size:14px; color:var(--rx-text); }
+  .rx-patient-meta span{ font-family:var(--mono); font-size:10.5px; color:var(--rx-text-dim); letter-spacing:.06em; }
+  .rx-pacs-status{
+    display:inline-flex; align-items:center; gap:6px;
+    padding:5px 12px; border-radius:100px; font-size:10.5px;
+    font-family:var(--mono); letter-spacing:.04em;
+  }
+  .rx-pacs-status.online{ background:var(--rx-success-glow); color:var(--rx-success); border:1px solid rgba(126,231,135,.18); }
+  .rx-pacs-status .pulse-dot{ width:6px; height:6px; border-radius:50%; background:var(--rx-success); box-shadow:0 0 8px var(--rx-success); animation:pulseDot 2s ease infinite; }
+  @keyframes pulseDot{ 0%,100%{opacity:1} 50%{opacity:.35} }
 
-  .rx-tools{ display:flex; align-items:center; gap:12px; }
+  .rx-tools{ display:flex; align-items:center; gap:10px; }
   .rx-tool-btn{
-    background:transparent; border:1px solid var(--rx-border); color:var(--rx-text-dim);
-    font-family:var(--sans); font-size:12px; font-weight:500;
-    padding:9px 18px; border-radius:6px; cursor:pointer;
-    transition:all .2s ease; display:inline-flex; align-items:center; gap:8px;
+    background:var(--rx-elev); border:1px solid var(--rx-border); color:var(--rx-text-dim);
+    font-family:var(--sans); font-size:11.5px; font-weight:500;
+    padding:8px 16px; border-radius:var(--radius-sm); cursor:pointer;
+    transition:all .2s ease; display:inline-flex; align-items:center; gap:6px;
   }
-  .rx-tool-btn:hover{ border-color:var(--rx-accent); color:var(--rx-accent); background:rgba(107,181,255,.08); }
-  .rx-tool-btn.primary{ background:var(--rx-accent); color:#0F1113; border-color:var(--rx-accent); font-weight:600; }
+  .rx-tool-btn:hover{ border-color:var(--rx-accent); color:var(--rx-accent); background:var(--rx-accent-glow); }
+  .rx-tool-btn.primary{ background:var(--rx-accent); color:var(--rx-bg); border-color:var(--rx-accent); font-weight:600; }
   .rx-tool-btn.primary:hover{ background:#8ECAFF; }
-  .rx-tool-btn:disabled{ opacity:.4; cursor:not-allowed; }
+  .rx-tool-btn:disabled{ opacity:.35; cursor:not-allowed; }
+  .rx-tool-btn.active{ border-color:var(--rx-accent); color:var(--rx-accent); background:var(--rx-accent-glow); }
 
-  /* loading state */
-  .rx-loading{
-    display:flex; align-items:center; gap:12px;
-    font-family:var(--mono); font-size:12px; color:var(--rx-text-dim);
-  }
-  .rx-spinner{
-    width:16px; height:16px; border:2px solid var(--rx-border);
-    border-top-color:var(--rx-accent); border-radius:50%;
-    animation:spin 1s linear infinite;
-  }
-  @keyframes spin{ to{ transform:rotate(360deg); } }
-
-  /* error banner */
-  .rx-error{
-    background:rgba(255,107,107,.1); border:1px solid rgba(255,107,107,.3);
-    color:var(--rx-danger); padding:12px 18px; border-radius:6px;
-    font-family:var(--sans); font-size:13px; margin-bottom:12px;
-  }
-
-  /* patient search */
-  .rx-search{
-    display:flex; gap:8px; align-items:center;
-  }
+  .rx-search{ display:flex; gap:6px; align-items:center; }
   .rx-search input{
-    background:transparent; border:1px solid var(--rx-border); border-radius:6px;
-    color:var(--rx-text); font-family:var(--sans); font-size:13px;
-    padding:8px 14px; width:180px; outline:none;
+    background:var(--rx-elev); border:1px solid var(--rx-border); border-radius:var(--radius-sm);
+    color:var(--rx-text); font-family:var(--sans); font-size:12.5px;
+    padding:7px 12px; width:160px; outline:none;
   }
   .rx-search input:focus{ border-color:var(--rx-accent); }
-  .rx-search input::placeholder{ color:var(--rx-text-dim); }
+  .rx-search input::placeholder{ color:var(--rx-text-muted); }
 
   /* ----- main split ----- */
-  .rx-main{
-    display:grid; grid-template-columns:1fr 380px; min-height:calc(100vh - 140px);
-  }
-  @media (max-width:1100px){ .rx-main{ grid-template-columns:1fr; } }
+  .rx-main{ display:grid; grid-template-columns:1fr 400px; min-height:calc(100vh - 140px); }
+  @media(max-width:1200px){ .rx-main{ grid-template-columns:1fr; } }
 
-  /* ----- image canvas ----- */
+  /* ----- viewport ----- */
   .rx-viewport{
     position:relative; background:#000;
     display:flex; align-items:center; justify-content:center;
@@ -113,117 +112,227 @@
     background-image:
       linear-gradient(var(--rx-grid) 1px, transparent 1px),
       linear-gradient(90deg, var(--rx-grid) 1px, transparent 1px);
-    background-size:40px 40px;
+    background-size:48px 48px;
     pointer-events:none; z-index:1;
   }
   .rx-image-wrap{
     position:relative; z-index:2;
-    max-width:92%; max-height:88vh;
+    max-width:90%; max-height:86vh;
     border:1px solid var(--rx-border); border-radius:4px;
-    overflow:hidden; box-shadow:0 24px 64px rgba(0,0,0,.6);
+    overflow:hidden; box-shadow:0 28px 72px rgba(0,0,0,.65);
+    transition:box-shadow .3s ease;
   }
-  .rx-image-wrap img{ display:block; width:100%; height:auto; }
-  .rx-image-wrap svg{ display:block; width:100%; height:auto; }
+  .rx-image-wrap:hover{ box-shadow:0 36px 90px rgba(0,0,0,.75), 0 0 0 1px rgba(107,181,255,.08); }
+  .rx-image-wrap img,.rx-image-wrap svg{ display:block; width:100%; height:auto; }
 
-  /* annotations overlay */
-  .rx-annotations{
-    position:absolute; inset:0; z-index:3; pointer-events:none;
+  /* compare slider */
+  .rx-compare-layer{
+    position:absolute; inset:0; z-index:4; overflow:hidden; pointer-events:none;
   }
+  .rx-compare-layer img,.rx-compare-layer svg{
+    position:absolute; inset:0; width:100%; height:100%; object-fit:contain;
+    filter:brightness(.55) contrast(.9);
+  }
+  .rx-compare-slider{
+    position:absolute; inset:0; z-index:5; pointer-events:none; display:none;
+  }
+  .rx-compare-slider.active{ display:block; }
+  .rx-compare-handle{
+    position:absolute; top:0; bottom:0; left:50%; width:3px;
+    background:var(--rx-accent); pointer-events:auto; cursor:ew-resize;
+    box-shadow:0 0 12px var(--rx-accent), 0 0 32px rgba(107,181,255,.25);
+  }
+  .rx-compare-handle::after{
+    content:""; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:28px; height:28px; border-radius:50%; background:var(--rx-accent);
+    box-shadow:0 0 16px rgba(107,181,255,.4);
+  }
+  .rx-compare-handle::before{
+    content:"◀▶"; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    font-family:var(--mono); font-size:7px; color:var(--rx-bg); z-index:2; letter-spacing:.5px;
+  }
+  .rx-compare-label{
+    position:absolute; top:12px; left:12px; z-index:6;
+    background:rgba(0,0,0,.7); backdrop-filter:blur(8px);
+    border:1px solid var(--rx-border); border-radius:var(--radius-sm);
+    padding:6px 12px; font-family:var(--mono); font-size:10px; color:var(--rx-text-dim);
+  }
+
+  /* heatmap overlay */
+  .rx-heatmap{
+    position:absolute; inset:0; z-index:3; pointer-events:none;
+    opacity:0; transition:opacity .4s ease;
+  }
+  .rx-heatmap.active{ opacity:.45; }
+
+  /* annotations */
+  .rx-annotations{ position:absolute; inset:0; z-index:4; pointer-events:none; }
   .rx-ann{
     position:absolute; pointer-events:auto; cursor:pointer;
-    transition:transform .2s ease;
+    transition:transform .25s cubic-bezier(.19,1,.22,1);
   }
-  .rx-ann:hover{ transform:scale(1.15); }
-  .rx-ann-dot{
-    width:18px; height:18px; border-radius:50%;
-    border:2px solid var(--rx-accent);
-    background:rgba(107,181,255,.25);
-    box-shadow:0 0 12px rgba(107,181,255,.4);
-    position:relative;
+  .rx-ann:hover{ transform:scale(1.2); z-index:10; }
+  .rx-ann-ring{
+    width:26px; height:26px; border-radius:50%; border:2px solid var(--rx-accent);
+    background:rgba(107,181,255,.18);
+    box-shadow:0 0 14px rgba(107,181,255,.45), inset 0 0 8px rgba(107,181,255,.15);
+    animation:annPulse 2.4s ease infinite;
+    display:grid; place-items:center;
   }
-  .rx-ann-dot.warn{ border-color:var(--rx-warn); background:rgba(255,184,108,.25); box-shadow:0 0 12px rgba(255,184,108,.4); }
-  .rx-ann-dot.danger{ border-color:var(--rx-danger); background:rgba(255,107,107,.25); box-shadow:0 0 12px rgba(255,107,107,.4); }
-  .rx-ann-label{
-    position:absolute; left:26px; top:-4px;
-    font-family:var(--mono); font-size:10px; letter-spacing:.06em;
-    color:#fff; background:rgba(0,0,0,.75);
-    padding:3px 10px; border-radius:4px; white-space:nowrap;
-    opacity:0; transform:translateX(-6px); transition:all .25s ease;
+  .rx-ann-ring.warn{ border-color:var(--rx-warn); background:rgba(255,184,108,.18); box-shadow:0 0 14px rgba(255,184,108,.45), inset 0 0 8px rgba(255,184,108,.15); }
+  .rx-ann-ring.danger{ border-color:var(--rx-danger); background:rgba(255,107,107,.18); box-shadow:0 0 14px rgba(255,107,107,.45), inset 0 0 8px rgba(255,107,107,.15); }
+  @keyframes annPulse{ 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+  .rx-ann-ring span{ font-family:var(--mono); font-size:9px; font-weight:600; color:#fff; }
+  .rx-ann-tooltip{
+    position:absolute; left:30px; top:-6px;
+    background:rgba(19,22,25,.96); backdrop-filter:blur(12px);
+    border:1px solid var(--rx-border-light); border-radius:var(--radius-sm);
+    padding:12px 16px; font-size:12px; color:var(--rx-text); white-space:nowrap;
+    opacity:0; transform:translateX(-8px); transition:all .25s ease;
+    pointer-events:none; z-index:20;
+    box-shadow:0 12px 36px rgba(0,0,0,.5);
+    max-width:280px; white-space:normal;
   }
-  .rx-ann:hover .rx-ann-label{ opacity:1; transform:translateX(0); }
+  .rx-ann:hover .rx-ann-tooltip{ opacity:1; transform:translateX(0); }
+  .rx-ann-tooltip strong{ color:var(--rx-text); font-weight:600; font-size:12.5px; display:block; margin-bottom:4px; }
+  .rx-ann-tooltip .tt-sev{ font-family:var(--mono); font-size:9.5px; color:var(--rx-text-dim); display:block; margin-top:3px; }
+  .rx-ann-tooltip .tt-conf{ display:inline-flex; align-items:center; gap:4px; margin-top:6px; padding:3px 8px; border-radius:4px; background:var(--rx-accent-glow); color:var(--rx-accent); font-family:var(--mono); font-size:9px; }
 
   /* ----- side panel ----- */
   .rx-panel{
     background:var(--rx-panel); border-left:1px solid var(--rx-border);
-    display:flex; flex-direction:column; overflow-y:auto;
+    display:flex; flex-direction:column; overflow:hidden;
   }
-  .rx-panel-section{
-    padding:26px 28px; border-bottom:1px solid var(--rx-border);
+  .rx-panel-scroll{ flex:1; overflow-y:auto; padding:20px; }
+  .rx-panel-scroll::-webkit-scrollbar{ width:4px; }
+  .rx-panel-scroll::-webkit-scrollbar-thumb{ background:var(--rx-border); border-radius:4px; }
+  .rx-sect{ margin-bottom:22px; animation:fadeInUp .5s cubic-bezier(.19,1,.22,1) both; }
+  .rx-sect:nth-child(1){ animation-delay:0s; }
+  .rx-sect:nth-child(2){ animation-delay:.06s; }
+  .rx-sect:nth-child(3){ animation-delay:.12s; }
+  .rx-sect:nth-child(4){ animation-delay:.18s; }
+  .rx-sect:nth-child(5){ animation-delay:.24s; }
+  .rx-sect:nth-child(6){ animation-delay:.30s; }
+  @keyframes fadeInUp{ from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+
+  .rx-sect-head{
+    display:flex; align-items:center; gap:8px;
+    font-family:var(--mono); font-size:9.5px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--rx-text-dim); margin-bottom:14px;
   }
-  .rx-panel-section:last-child{ border-bottom:none; }
-  .rx-panel h3{
-    font-family:var(--mono); font-size:10.5px; letter-spacing:.18em; text-transform:uppercase;
-    color:var(--rx-text-dim); margin-bottom:18px; display:flex; align-items:center; gap:10px;
+  .rx-sect-head .dot{ width:5px; height:5px; border-radius:50%; background:var(--rx-accent); box-shadow:0 0 6px var(--rx-accent); }
+  .rx-sect-head .dot.warn{ background:var(--rx-warn); box-shadow:0 0 6px var(--rx-warn); }
+  .rx-sect-head .dot.ok{ background:var(--rx-success); box-shadow:0 0 6px var(--rx-success); }
+  .rx-sect-head .dot.purple{ background:var(--rx-purple); box-shadow:0 0 6px var(--rx-purple); }
+
+  /* tooth chart */
+  .rx-tooth-chart{
+    display:grid; grid-template-columns:repeat(8,1fr); gap:3px;
+    padding:12px; background:var(--rx-elev); border-radius:var(--radius); border:1px solid var(--rx-border);
   }
-  .rx-panel h3 .dot{
-    width:6px; height:6px; border-radius:50%; background:var(--rx-accent);
-    box-shadow:0 0 8px var(--rx-accent);
+  .rx-tooth{
+    aspect-ratio:1; display:grid; place-items:center;
+    font-family:var(--mono); font-size:9px; border-radius:4px; cursor:pointer;
+    transition:all .15s ease; background:var(--rx-panel); color:var(--rx-text-muted); border:1px solid var(--rx-border);
+  }
+  .rx-tooth:hover{ transform:scale(1.18); z-index:2; border-color:var(--rx-accent); }
+  .rx-tooth.ok{ background:var(--rx-success-glow); color:var(--rx-success); border-color:rgba(126,231,135,.2); }
+  .rx-tooth.warn{ background:var(--rx-warn-glow); color:var(--rx-warn); border-color:rgba(255,184,108,.2); }
+  .rx-tooth.danger{ background:var(--rx-danger-glow); color:var(--rx-danger); border-color:rgba(255,107,107,.2); }
+  .rx-tooth.active{ background:var(--rx-accent-glow); color:var(--rx-accent); border-color:rgba(107,181,255,.3); box-shadow:0 0 8px rgba(107,181,255,.12); }
+  .rx-tooth-labels{
+    display:flex; justify-content:space-between; padding:4px 2px 0;
+    font-family:var(--mono); font-size:8px; color:var(--rx-text-muted);
   }
 
-  /* AI analysis text — ALL WHITE */
-  .rx-analysis{
-    font-family:var(--sans); font-size:14.5px; line-height:1.75;
-    color:#FFFFFF;
+  /* AI analysis cards */
+  .rx-ai-card{
+    background:var(--rx-elev); border:1px solid var(--rx-border);
+    border-radius:var(--radius); padding:14px 16px; margin-bottom:10px;
+    transition:all .2s ease; cursor:pointer;
   }
-  .rx-analysis p + p{ margin-top:12px; }
-  .rx-analysis strong{ color:var(--rx-accent); font-weight:600; }
-  .rx-analysis .confidence{
-    display:inline-flex; align-items:center; gap:6px;
-    font-family:var(--mono); font-size:10px; color:var(--rx-text-dim);
-    margin-left:8px;
-  }
+  .rx-ai-card:hover{ border-color:var(--rx-border-light); transform:translateY(-1px); }
+  .rx-ai-card-head{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; gap:8px; }
+  .rx-ai-card-title{ font-size:13px; font-weight:500; color:var(--rx-text); }
+  .rx-ai-card-conf{ font-family:var(--mono); font-size:9.5px; padding:3px 8px; border-radius:4px; background:var(--rx-accent-glow); color:var(--rx-accent); white-space:nowrap; }
+  .rx-ai-card-conf.warn{ background:var(--rx-warn-glow); color:var(--rx-warn); }
+  .rx-ai-card-conf.danger{ background:var(--rx-danger-glow); color:var(--rx-danger); }
+  .rx-ai-card-body{ font-size:13px; line-height:1.65; color:#FFFFFF; }
+  .rx-ai-card-body strong{ color:var(--rx-accent); font-weight:500; }
 
-  /* findings list */
-  .rx-findings{ list-style:none; }
-  .rx-findings li{
-    display:flex; gap:14px; align-items:flex-start;
-    padding:14px 0; border-bottom:1px solid var(--rx-border);
+  /* findings */
+  .rx-finding{
+    display:flex; gap:12px; align-items:flex-start;
+    padding:12px 0; border-bottom:1px solid var(--rx-border);
   }
-  .rx-findings li:last-child{ border-bottom:none; }
-  .rx-sev{
-    flex-shrink:0; width:20px; height:20px; border-radius:50%;
+  .rx-finding:last-child{ border-bottom:none; }
+  .rx-finding-rank{
+    flex-shrink:0; width:22px; height:22px; border-radius:50%;
     display:grid; place-items:center;
-    font-family:var(--mono); font-size:10px; font-weight:600;
-    margin-top:2px;
+    font-family:var(--mono); font-size:9.5px; font-weight:600;
   }
-  .rx-sev.info{ background:rgba(107,181,255,.15); color:var(--rx-accent); border:1px solid rgba(107,181,255,.3); }
-  .rx-sev.warn{ background:rgba(255,184,108,.15); color:var(--rx-warn); border:1px solid rgba(255,184,108,.3); }
-  .rx-sev.danger{ background:rgba(255,107,107,.15); color:var(--rx-danger); border:1px solid rgba(255,107,107,.3); }
-  .rx-finding-text{ font-size:14px; line-height:1.6; color:#FFFFFF; }
-  .rx-finding-text small{
-    display:block; font-family:var(--mono); font-size:10px; color:var(--rx-text-dim); margin-top:4px; letter-spacing:.04em;
+  .rx-finding-rank.info{ background:rgba(107,181,255,.1); color:var(--rx-accent); border:1px solid rgba(107,181,255,.2); }
+  .rx-finding-rank.warn{ background:rgba(255,184,108,.1); color:var(--rx-warn); border:1px solid rgba(255,184,108,.2); }
+  .rx-finding-rank.danger{ background:rgba(255,107,107,.1); color:var(--rx-danger); border:1px solid rgba(255,107,107,.2); }
+  .rx-finding-text{ font-size:12.5px; line-height:1.6; color:#FFFFFF; }
+  .rx-finding-text strong{ font-weight:600; }
+  .rx-finding-text small{ display:block; font-family:var(--mono); font-size:9.5px; color:var(--rx-text-muted); margin-top:3px; }
+  .rx-finding-action{ display:inline-flex; gap:4px; margin-top:6px; }
+  .rx-finding-action .tag{
+    font-family:var(--mono); font-size:8.5px; padding:2px 8px; border-radius:4px;
+    background:var(--rx-accent-glow); color:var(--rx-accent); border:1px solid rgba(107,181,255,.15);
   }
 
   /* measurements */
-  .rx-measure{ display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--rx-border); font-size:13.5px; }
+  .rx-measure{ display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--rx-border); font-size:12.5px; }
   .rx-measure:last-child{ border-bottom:none; }
   .rx-measure .m-label{ color:var(--rx-text-dim); }
   .rx-measure .m-val{ color:#FFFFFF; font-family:var(--mono); font-weight:500; }
 
-  /* comparison toggle */
-  .rx-compare-bar{ display:flex; gap:8px; margin-top:16px; flex-wrap:wrap; }
+  /* timeline */
+  .rx-timeline{ position:relative; padding-left:18px; }
+  .rx-timeline::before{ content:""; position:absolute; left:5px; top:4px; bottom:4px; width:1px; background:var(--rx-border); }
+  .rx-tl-item{ position:relative; padding-bottom:14px; }
+  .rx-tl-item::before{ content:""; position:absolute; left:-14px; top:5px; width:7px; height:7px; border-radius:50%; background:var(--rx-panel); border:2px solid var(--rx-border-light); }
+  .rx-tl-item.active::before{ border-color:var(--rx-accent); background:var(--rx-accent); box-shadow:0 0 8px var(--rx-accent); }
+  .rx-tl-item.warn::before{ border-color:var(--rx-warn); background:var(--rx-warn); }
+  .rx-tl-date{ font-family:var(--mono); font-size:9px; color:var(--rx-text-muted); letter-spacing:.04em; }
+  .rx-tl-title{ font-size:11.5px; color:var(--rx-text); font-weight:500; margin-top:2px; }
+  .rx-tl-desc{ font-size:10.5px; color:var(--rx-text-dim); margin-top:2px; }
+
+  /* compare bar */
+  .rx-compare-bar{ display:flex; gap:6px; margin-top:12px; flex-wrap:wrap; }
   .rx-compare-chip{
-    font-family:var(--mono); font-size:10px; letter-spacing:.06em;
-    padding:6px 14px; border-radius:4px; border:1px solid var(--rx-border);
+    font-family:var(--mono); font-size:10px; letter-spacing:.04em;
+    padding:6px 12px; border-radius:var(--radius-sm); border:1px solid var(--rx-border);
     color:var(--rx-text-dim); cursor:pointer; transition:all .2s ease;
   }
   .rx-compare-chip:hover{ border-color:var(--rx-accent); color:var(--rx-accent); }
-  .rx-compare-chip.on{ background:rgba(107,181,255,.12); border-color:var(--rx-accent); color:var(--rx-accent); }
+  .rx-compare-chip.on{ background:var(--rx-accent-glow); border-color:var(--rx-accent); color:var(--rx-accent); }
 
-  /* ======== PRINT REPORT STYLES ======== */
+  /* loading */
+  .rx-loading{ display:flex; align-items:center; gap:10px; font-family:var(--mono); font-size:11.5px; color:var(--rx-text-dim); }
+  .rx-spinner{ width:14px; height:14px; border:2px solid var(--rx-border); border-top-color:var(--rx-accent); border-radius:50%; animation:spin 1s linear infinite; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  /* error */
+  .rx-error{
+    background:rgba(255,107,107,.08); border:1px solid rgba(255,107,107,.2);
+    color:var(--rx-danger); padding:10px 14px; border-radius:var(--radius-sm);
+    font-family:var(--sans); font-size:12.5px; margin-bottom:10px;
+  }
+
+  /* panel footer */
+  .rx-panel-footer{
+    padding:12px 16px; border-top:1px solid var(--rx-border);
+    background:var(--rx-elev); display:flex; gap:8px;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     PRINT REPORT STYLES — preserved exactly
+     ═══════════════════════════════════════════════════════════════ */
   @media print {
     @page { size: letter portrait; margin: .6in .7in; }
-
     body *{ visibility:hidden; }
     #rx-print-area, #rx-print-area *{ visibility:visible; }
     #rx-print-area{
@@ -231,7 +340,6 @@
       background:#fff !important; color:#242424 !important;
       padding:0 !important; margin:0 !important;
     }
-
     .rx-print-header{
       display:flex; justify-content:space-between; align-items:flex-start;
       border-bottom:2px solid #AD8F66; padding-bottom:18px; margin-bottom:28px;
@@ -239,16 +347,13 @@
     .rx-print-brand{ font-family:"Fraunces",Georgia,serif; font-size:22px; color:#242424; }
     .rx-print-brand small{ display:block; font-family:"Geist Mono",monospace; font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:#6F6A61; margin-top:3px; }
     .rx-print-meta{ text-align:right; font-family:"Geist Mono",monospace; font-size:10px; color:#6F6A61; line-height:1.8; }
-
     .rx-print-patient{
       display:grid; grid-template-columns:1fr 1fr 1fr;
-      gap:12px 32px; margin-bottom:28px;
-      font-size:13px;
+      gap:12px 32px; margin-bottom:28px; font-size:13px;
     }
     .rx-print-patient .pp-row{ display:flex; justify-content:space-between; border-bottom:1px dashed #E3DACB; padding:6px 0; }
     .rx-print-patient .pp-label{ color:#6F6A61; font-family:"Geist Mono",monospace; font-size:9px; letter-spacing:.1em; text-transform:uppercase; }
     .rx-print-patient .pp-val{ color:#242424; font-weight:500; }
-
     .rx-print-image{
       text-align:center; margin-bottom:28px;
       border:1px solid #E3DACB; padding:12px; background:#FAFAFA;
@@ -258,7 +363,6 @@
       font-family:"Geist Mono",monospace; font-size:9px; letter-spacing:.1em; text-transform:uppercase;
       color:#979285; margin-top:8px;
     }
-
     .rx-print-section h4{
       font-family:"Fraunces",Georgia,serif; font-weight:400; font-size:18px;
       color:#242424; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid #E3DACB;
@@ -277,34 +381,26 @@
     .rx-print-sev.info{ background:#E8F4FF; color:#2A7CC8; border:1px solid #B8D9F5; }
     .rx-print-sev.warn{ background:#FFF4E5; color:#B87A2A; border:1px solid #F5D9B8; }
     .rx-print-sev.danger{ background:#FFE8E8; color:#C82A2A; border:1px solid #F5B8B8; }
-
     .rx-print-footer{
       margin-top:40px; padding-top:16px; border-top:1px solid #E3DACB;
       display:flex; justify-content:space-between; align-items:center;
-      font-family:"Geist Mono",monospace; font-size:9px; letter-spacing:.08em;
-      color:#979285;
+      font-family:"Geist Mono",monospace; font-size:9px; letter-spacing:.08em; color:#979285;
     }
-    .rx-print-signature{
-      margin-top:32px; display:flex; gap:48px;
-    }
+    .rx-print-signature{ margin-top:32px; display:flex; gap:48px; }
     .rx-print-sig-line{
       flex:1; border-top:1px solid #242424; padding-top:6px;
-      font-family:"Geist Mono",monospace; font-size:9px; letter-spacing:.1em; text-transform:uppercase;
-      color:#6F6A61;
+      font-family:"Geist Mono",monospace; font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:#6F6A61;
     }
-
-    /* hide everything else */
     .rx-page, .rx-toolbar, .rx-panel, .rx-viewport, header, footer, .topbar, .nav{ display:none !important; }
   }
-
-  /* print preview area — hidden on screen */
   #rx-print-area{ display:none; }
   @media print{ #rx-print-area{ display:block !important; } }
 
   /* responsive */
-  @media (max-width:1100px){
+  @media(max-width:1200px){
     .rx-panel{ border-left:none; border-top:1px solid var(--rx-border); }
-    .rx-toolbar{ flex-wrap:wrap; gap:12px; }
+    .rx-toolbar{ flex-wrap:wrap; gap:10px; }
+    .rx-main{ grid-template-columns:1fr; }
   }
 </style>
 </head>
@@ -337,7 +433,9 @@
   </div>
 </header>
 
-<!-- ======== TOOLBAR ======== -->
+<!-- ═══════════════════════════════════════════════════════════════
+     TOOLBAR
+     ═══════════════════════════════════════════════════════════════ -->
 <div class="rx-toolbar" id="rxToolbar">
   <div class="rx-patient-chip" id="rxPatientChip">
     <div class="rx-loading"><div class="rx-spinner"></div>Loading patient…</div>
@@ -347,131 +445,168 @@
       <input type="text" id="patientSearchInput" placeholder="Patient ID…" />
       <button class="rx-tool-btn" onclick="loadPatientFromInput()">Load</button>
     </div>
-    <button class="rx-tool-btn" onclick="toggleCompare()" title="Toggle prior comparison">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-      Compare Prior
+    <span class="rx-pacs-status online" id="rxPacsStatus" style="display:none;"><span class="pulse-dot"></span>PACS Online</span>
+    <button class="rx-tool-btn" id="btnCompare" onclick="toggleCompare()" title="Toggle prior comparison">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+      Compare
+    </button>
+    <button class="rx-tool-btn" id="btnHeatmap" onclick="toggleHeatmap()" title="Toggle AI confidence heatmap">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20 10 10 0 0 1 0-20"/></svg>
+      Heatmap
     </button>
     <button class="rx-tool-btn" onclick="toggleInversions()" title="Invert colors">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20 10 10 0 0 1 0-20"/></svg>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
       Invert
     </button>
+    <button class="rx-tool-btn" onclick="startDictation()" title="Voice dictate findings">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+      Dictate
+    </button>
     <button class="rx-tool-btn primary" id="btnPrint" onclick="printReport()" disabled>
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-      Print Patient Report
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      Print Report
     </button>
   </div>
 </div>
 
-<!-- ======== MAIN VIEWER ======== -->
+<!-- ═══════════════════════════════════════════════════════════════
+     MAIN VIEWER
+     ═══════════════════════════════════════════════════════════════ -->
 <div class="rx-main">
 
   <!-- Viewport -->
   <div class="rx-viewport" id="rxViewport">
     <div class="rx-image-wrap" id="rxImageWrap">
-      <!-- Dynamic image injected here -->
       <div id="rxImageContainer">
         <!-- SVG placeholder until real radiograph loads -->
-        <svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg" style="max-width:900px;">
+        <svg viewBox="0 0 900 450" xmlns="http://www.w3.org/2000/svg" style="max-width:900px;">
           <defs>
-            <radialGradient id="boneGrad" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stop-color="#2A2E33"/>
-              <stop offset="100%" stop-color="#15171A"/>
-            </radialGradient>
-            <filter id="glow">
-              <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-              <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
-            </filter>
+            <radialGradient id="boneGrad" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#2A2E33"/><stop offset="100%" stop-color="#15171A"/></radialGradient>
+            <filter id="glow"><feGaussianBlur stdDeviation="2" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
           </defs>
-          <rect width="800" height="400" fill="url(#boneGrad)"/>
-          <path d="M 60,200 Q 120,100 200,110 Q 280,120 320,130 Q 360,140 400,140 Q 440,140 480,130 Q 520,120 600,110 Q 680,100 740,200 Q 700,320 600,310 Q 520,300 480,290 Q 440,280 400,280 Q 360,280 320,290 Q 280,300 200,310 Q 100,320 60,200 Z" fill="#1E2226" stroke="#3A3F45" stroke-width="1.5"/>
-          <g fill="#C8D0D8" opacity="0.85">
-            <rect x="135" y="125" width="10" height="35" rx="4"/><rect x="155" y="128" width="12" height="38" rx="5"/>
-            <rect x="178" y="132" width="14" height="42" rx="5"/><rect x="205" y="136" width="16" height="48" rx="6"/>
-            <rect x="235" y="140" width="18" height="52" rx="7"/><rect x="268" y="144" width="16" height="50" rx="6"/>
-            <rect x="298" y="146" width="14" height="46" rx="5"/><rect x="325" y="148" width="12" height="40" rx="5"/>
-            <rect x="350" y="148" width="10" height="35" rx="4"/><rect x="370" y="148" width="10" height="35" rx="4"/>
-            <rect x="390" y="148" width="10" height="35" rx="4"/><rect x="420" y="148" width="12" height="40" rx="5"/>
-            <rect x="445" y="146" width="14" height="46" rx="5"/><rect x="473" y="144" width="16" height="50" rx="6"/>
-            <rect x="503" y="140" width="18" height="52" rx="7"/><rect x="535" y="136" width="16" height="48" rx="6"/>
-            <rect x="562" y="132" width="14" height="42" rx="5"/><rect x="587" y="128" width="12" height="38" rx="5"/>
-            <rect x="610" y="125" width="10" height="35" rx="4"/>
+          <rect width="900" height="450" fill="url(#boneGrad)"/>
+          <path d="M 70 225 Q 140 110 230 120 Q 320 130 370 140 Q 410 150 450 150 Q 490 150 530 140 Q 580 130 670 120 Q 760 110 830 225 Q 790 355 670 345 Q 580 335 530 325 Q 490 315 450 315 Q 410 315 370 325 Q 320 335 230 345 Q 110 355 70 225 Z" fill="#1E2226" stroke="#3A3F45" stroke-width="1.5"/>
+          <g fill="#C8D0D8" opacity="0.8">
+            <rect x="155" y="135" width="10" height="36" rx="4"/><rect x="178" y="140" width="12" height="40" rx="5"/>
+            <rect x="205" y="145" width="14" height="46" rx="5"/><rect x="235" y="150" width="16" height="52" rx="6"/>
+            <rect x="268" y="155" width="18" height="56" rx="7"/><rect x="303" y="158" width="16" height="54" rx="6"/>
+            <rect x="335" y="160" width="14" height="50" rx="5"/><rect x="363" y="162" width="12" height="44" rx="5"/>
+            <rect x="388" y="163" width="10" height="38" rx="4"/><rect x="410" y="163" width="10" height="38" rx="4"/>
+            <rect x="432" y="163" width="10" height="38" rx="4"/><rect x="458" y="162" width="12" height="44" rx="5"/>
+            <rect x="485" y="160" width="14" height="50" rx="5"/><rect x="515" y="158" width="16" height="54" rx="6"/>
+            <rect x="548" y="155" width="18" height="56" rx="7"/><rect x="581" y="150" width="16" height="52" rx="6"/>
+            <rect x="611" y="145" width="14" height="46" rx="5"/><rect x="638" y="140" width="12" height="40" rx="5"/>
+            <rect x="663" y="135" width="10" height="36" rx="4"/>
           </g>
-          <g fill="#C8D0D8" opacity="0.85">
-            <rect x="140" y="270" width="10" height="32" rx="4"/><rect x="160" y="266" width="12" height="36" rx="5"/>
-            <rect x="182" y="262" width="14" height="40" rx="5"/><rect x="208" y="258" width="16" height="46" rx="6"/>
-            <rect x="238" y="254" width="18" height="50" rx="7"/><rect x="270" y="250" width="16" height="48" rx="6"/>
-            <rect x="300" y="248" width="14" height="44" rx="5"/><rect x="327" y="246" width="12" height="38" rx="5"/>
-            <rect x="352" y="246" width="10" height="34" rx="4"/><rect x="372" y="246" width="10" height="34" rx="4"/>
-            <rect x="392" y="246" width="10" height="34" rx="4"/><rect x="422" y="246" width="12" height="38" rx="5"/>
-            <rect x="447" y="248" width="14" height="44" rx="5"/><rect x="475" y="250" width="16" height="48" rx="6"/>
-            <rect x="505" y="254" width="18" height="50" rx="7"/><rect x="537" y="258" width="16" height="46" rx="6"/>
-            <rect x="564" y="262" width="14" height="40" rx="5"/><rect x="589" y="266" width="12" height="36" rx="5"/>
-            <rect x="612" y="270" width="10" height="32" rx="4"/>
+          <g fill="#C8D0D8" opacity="0.8">
+            <rect x="158" y="285" width="10" height="34" rx="4"/><rect x="180" y="280" width="12" height="38" rx="5"/>
+            <rect x="206" y="275" width="14" height="44" rx="5"/><rect x="236" y="270" width="16" height="50" rx="6"/>
+            <rect x="269" y="265" width="18" height="54" rx="7"/><rect x="304" y="262" width="16" height="52" rx="6"/>
+            <rect x="336" y="260" width="14" height="48" rx="5"/><rect x="364" y="258" width="12" height="42" rx="5"/>
+            <rect x="389" y="257" width="10" height="36" rx="4"/><rect x="411" y="257" width="10" height="36" rx="4"/>
+            <rect x="433" y="257" width="10" height="36" rx="4"/><rect x="459" y="258" width="12" height="42" rx="5"/>
+            <rect x="486" y="260" width="14" height="48" rx="5"/><rect x="516" y="262" width="16" height="52" rx="6"/>
+            <rect x="549" y="265" width="18" height="54" rx="7"/><rect x="582" y="270" width="16" height="50" rx="6"/>
+            <rect x="612" y="275" width="14" height="44" rx="5"/><rect x="638" y="280" width="12" height="38" rx="5"/>
+            <rect x="664" y="285" width="10" height="34" rx="4"/>
           </g>
-          <g fill="#FFFFFF" filter="url(#glow)">
-            <rect x="233" y="142" width="20" height="56" rx="3"/>
-            <rect x="505" y="142" width="20" height="56" rx="3"/>
+          <g fill="#FFFFFF" opacity="0.9">
+            <rect x="266" y="157" width="22" height="60" rx="3"/>
+            <rect x="548" y="157" width="22" height="60" rx="3"/>
           </g>
-          <g fill="#E0E6EC">
-            <rect x="236" y="138" width="14" height="8" rx="2"/>
-            <rect x="508" y="138" width="14" height="8" rx="2"/>
-          </g>
-          <g fill="#F5F5F5" opacity="0.9">
-            <rect x="230" y="130" width="26" height="14" rx="4"/>
-            <rect x="502" y="130" width="26" height="14" rx="4"/>
-          </g>
-          <path d="M 120,280 Q 250,260 400,265 Q 550,260 680,280" fill="none" stroke="#4A5058" stroke-width="2" stroke-dasharray="6 4" opacity="0.5"/>
-          <path d="M 200,95 Q 300,85 400,88 Q 500,85 600,95" fill="none" stroke="#4A5058" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.4"/>
-          <text x="400" y="380" text-anchor="middle" font-family="Geist Mono, monospace" font-size="10" fill="#6A7078" letter-spacing="0.1em">PANORAMIC RADIOGRAPH — 07/25/2026</text>
+          <text x="450" y="430" text-anchor="middle" font-family="Geist Mono, monospace" font-size="10" fill="#6A7078" letter-spacing="0.1em">PANORAMIC RADIOGRAPH — 07/25/2026</text>
         </svg>
       </div>
-      <!-- Annotation overlays -->
+
+      <!-- Heatmap overlay -->
+      <svg class="rx-heatmap" id="rxHeatmap" viewBox="0 0 900 450" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <radialGradient id="heatInfo" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(107,181,255,.5)"/><stop offset="100%" stop-color="rgba(107,181,255,0)"/></radialGradient>
+          <radialGradient id="heatWarn" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(255,184,108,.5)"/><stop offset="100%" stop-color="rgba(255,184,108,0)"/></radialGradient>
+          <radialGradient id="heatDanger" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(255,107,107,.5)"/><stop offset="100%" stop-color="rgba(255,107,107,0)"/></radialGradient>
+        </defs>
+      </svg>
+
+      <!-- Compare slider layer -->
+      <div class="rx-compare-slider" id="rxCompareSlider">
+        <div class="rx-compare-layer" id="rxCompareLayer"></div>
+        <div class="rx-compare-handle" id="rxCompareHandle"></div>
+        <div class="rx-compare-label" id="rxCompareLabel">Prior — 01/14/2025</div>
+      </div>
+
+      <!-- Annotations -->
       <div class="rx-annotations" id="rxAnnotations"></div>
     </div>
   </div>
 
   <!-- Side Panel -->
   <div class="rx-panel" id="rxPanel">
+    <div class="rx-panel-scroll">
 
-    <!-- AI Analysis -->
-    <div class="rx-panel-section">
-      <h3><span class="dot"></span>AI Analysis — Qwen3-VL</h3>
-      <div class="rx-analysis" id="rxAnalysis">
-        <div class="rx-loading"><div class="rx-spinner"></div>Loading analysis…</div>
+      <!-- Tooth Chart -->
+      <div class="rx-sect" id="rxToothChartSect" style="display:none;">
+        <div class="rx-sect-head"><span class="dot purple"></span>Interactive Tooth Chart</div>
+        <div class="rx-tooth-chart" id="rxToothChart"></div>
+        <div class="rx-tooth-labels"><span>UR</span><span>UL</span><span>LL</span><span>LR</span></div>
       </div>
-    </div>
 
-    <!-- Findings -->
-    <div class="rx-panel-section">
-      <h3><span class="dot" style="background:var(--rx-warn); box-shadow:0 0 8px var(--rx-warn);"></span>Prioritized Findings</h3>
-      <ul class="rx-findings" id="rxFindings">
-        <li><div class="rx-loading"><div class="rx-spinner"></div>Loading findings…</div></li>
-      </ul>
-    </div>
-
-    <!-- Measurements -->
-    <div class="rx-panel-section">
-      <h3><span class="dot" style="background:var(--rx-success); box-shadow:0 0 8px var(--rx-success);"></span>Auto-Measurements</h3>
-      <div id="rxMeasurements">
-        <div class="rx-loading"><div class="rx-spinner"></div>Loading measurements…</div>
+      <!-- AI Analysis -->
+      <div class="rx-sect">
+        <div class="rx-sect-head"><span class="dot"></span>AI Analysis — Qwen3-VL</div>
+        <div id="rxAnalysis">
+          <div class="rx-loading"><div class="rx-spinner"></div>Loading analysis…</div>
+        </div>
       </div>
-    </div>
 
-    <!-- Compare -->
-    <div class="rx-panel-section">
-      <h3><span class="dot" style="background:var(--rx-text-dim); box-shadow:none;"></span>Comparison</h3>
-      <div class="rx-compare-bar" id="rxCompareBar">
-        <div class="rx-compare-chip on">Current — 07/25/2026</div>
+      <!-- Findings -->
+      <div class="rx-sect">
+        <div class="rx-sect-head"><span class="dot warn"></span>Prioritized Findings</div>
+        <div id="rxFindings">
+          <div class="rx-loading"><div class="rx-spinner"></div>Loading findings…</div>
+        </div>
       </div>
+
+      <!-- Measurements -->
+      <div class="rx-sect">
+        <div class="rx-sect-head"><span class="dot ok"></span>Auto-Measurements</div>
+        <div id="rxMeasurements">
+          <div class="rx-loading"><div class="rx-spinner"></div>Loading measurements…</div>
+        </div>
+      </div>
+
+      <!-- Timeline -->
+      <div class="rx-sect" id="rxTimelineSect" style="display:none;">
+        <div class="rx-sect-head"><span class="dot purple"></span>Patient Timeline</div>
+        <div class="rx-timeline" id="rxTimeline"></div>
+      </div>
+
+      <!-- Compare -->
+      <div class="rx-sect">
+        <div class="rx-sect-head"><span class="dot" style="background:var(--rx-text-dim);box-shadow:none;"></span>Comparison</div>
+        <div class="rx-compare-bar" id="rxCompareBar">
+          <div class="rx-compare-chip on">Current — 07/25/2026</div>
+        </div>
+      </div>
+
     </div>
 
+    <div class="rx-panel-footer">
+      <button class="rx-tool-btn" style="flex:1;" onclick="shareReport()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        Share
+      </button>
+      <button class="rx-tool-btn" style="flex:1;" onclick="addToTreatmentPlan()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        Treatment Plan
+      </button>
+    </div>
   </div>
 </div>
 
-<!-- ======== PRINT REPORT (hidden until print) ======== -->
-<div id="rx-print-area">
-  <!-- Dynamically populated by JS -->
-</div>
+<!-- ═══════════════════════════════════════════════════════════════
+     PRINT REPORT (hidden until print)
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="rx-print-area"></div>
 
 <script type="module">
   import {
@@ -486,8 +621,100 @@
   let currentPatient = null;
   let currentRadiograph = null;
   let currentAnalysis = null;
+  let currentPriors = [];
   let inverted = false;
   let comparing = false;
+  let heatmapOn = false;
+  let activeTooth = null;
+
+  /* ================================================================
+     UTILITIES
+     ================================================================ */
+
+  function parseToothNumbers(toothStr) {
+    if (!toothStr) return [];
+    const teeth = [];
+    const rangeRe = /#?(\d+)\s*[-–]\s*#?(\d+)/g;
+    const singleRe = /#?(\d+)/g;
+    let m;
+    // Ranges first
+    while ((m = rangeRe.exec(toothStr)) !== null) {
+      const a = parseInt(m[1]), b = parseInt(m[2]);
+      for (let i = Math.min(a, b); i <= Math.max(a, b); i++) {
+        if (i >= 1 && i <= 32) teeth.push(i);
+      }
+    }
+    // Singles (avoid re-matching range numbers by resetting)
+    const cleaned = toothStr.replace(rangeRe, '');
+    while ((m = singleRe.exec(cleaned)) !== null) {
+      const n = parseInt(m[1]);
+      if (n >= 1 && n <= 32 && !teeth.includes(n)) teeth.push(n);
+    }
+    return teeth;
+  }
+
+  function severityPriority(sev) {
+    return sev === 'danger' ? 3 : sev === 'warn' ? 2 : sev === 'info' ? 1 : 0;
+  }
+
+  function buildToothStatus(findings) {
+    const status = {};
+    for (let t = 1; t <= 32; t++) status[t] = null;
+    if (!findings) return status;
+    for (const f of findings) {
+      const teeth = parseToothNumbers(f.tooth);
+      for (const t of teeth) {
+        const current = status[t];
+        const incoming = f.severity;
+        if (!current || severityPriority(incoming) > severityPriority(current)) {
+          status[t] = incoming;
+        }
+      }
+    }
+    return status;
+  }
+
+  function buildTimeline(patient, radiograph, analysis) {
+    const events = [];
+    // Current radiograph
+    if (radiograph) {
+      events.push({
+        date: radiograph.displayDate,
+        title: `${radiograph.type} Radiograph — AI Analysis`,
+        desc: analysis?.overview ? analysis.overview.substring(0, 80) + '…' : 'Radiograph acquired and analyzed',
+        active: true,
+        type: 'radiograph'
+      });
+    }
+    // Prior radiographs
+    if (radiograph?.priors) {
+      for (const p of radiograph.priors) {
+        events.push({
+          date: p.date,
+          title: `Prior ${radiograph.type}`,
+          desc: p.label,
+          active: false,
+          type: 'radiograph'
+        });
+      }
+    }
+    // Treatment recommendations from findings
+    if (analysis?.findings) {
+      for (const f of analysis.findings) {
+        if (f.note && (f.severity === 'danger' || f.severity === 'warn')) {
+          events.push({
+            date: 'Recommended',
+            title: `Treatment: ${f.tooth || 'General'}`,
+            desc: f.note,
+            active: false,
+            type: 'treatment',
+            severity: f.severity
+          });
+        }
+      }
+    }
+    return events;
+  }
 
   /* ================================================================
      RENDERERS
@@ -502,34 +729,94 @@
         <span>DOB: ${patient.displayDob || patient.dob} · ID: ${patient.id} · ${radiograph?.type || ''} — ${radiograph?.displayDate || ''}</span>
       </div>
     `;
+    // Show PACS badge
+    document.getElementById('rxPacsStatus').style.display = 'inline-flex';
+  }
+
+  function renderToothChart(findings) {
+    const container = document.getElementById('rxToothChart');
+    const status = buildToothStatus(findings);
+    let html = '';
+    for (let row = 0; row < 4; row++) {
+      for (let col = 0; col < 8; col++) {
+        const num = row * 8 + col + 1;
+        const sev = status[num];
+        const cls = sev || '';
+        html += `<div class="rx-tooth ${cls}" data-tooth="${num}" title="Tooth #${num}">${num}</div>`;
+      }
+    }
+    container.innerHTML = html;
+    document.getElementById('rxToothChartSect').style.display = 'block';
+
+    // Click handlers
+    container.querySelectorAll('.rx-tooth').forEach(t => {
+      t.addEventListener('click', () => {
+        const num = parseInt(t.dataset.tooth);
+        activeTooth = activeTooth === num ? null : num;
+        container.querySelectorAll('.rx-tooth').forEach(x => x.classList.remove('active'));
+        if (activeTooth) {
+          t.classList.add('active');
+          // Scroll to corresponding finding if any
+          const findingsEl = document.getElementById('rxFindings');
+          const target = findingsEl.querySelector(`[data-tooth-nums*="${num}"]`);
+          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      });
+    });
   }
 
   function renderAnalysis(analysis) {
     const el = document.getElementById('rxAnalysis');
     if (!analysis || !analysis.paragraphs) {
-      el.innerHTML = '<p>No AI analysis available for this radiograph.</p>';
+      el.innerHTML = '<p style="color:var(--rx-text-dim); font-size:13px;">No AI analysis available for this radiograph.</p>';
       return;
     }
-    el.innerHTML = analysis.paragraphs.map(p => `
-      <p><strong>${p.heading}:</strong> ${p.text}${p.confidence ? `<span class="confidence">Confidence: ${Math.round(p.confidence * 100)}%</span>` : ''}</p>
-    `).join('');
+    // Render as cards using paragraphs + findings
+    const cards = [];
+    if (analysis.paragraphs) {
+      for (const p of analysis.paragraphs) {
+        const conf = p.confidence ? `<span class="rx-ai-card-conf">${Math.round(p.confidence * 100)}% confidence</span>` : '';
+        cards.push(`
+          <div class="rx-ai-card">
+            <div class="rx-ai-card-head">
+              <span class="rx-ai-card-title">${p.heading}</span>
+              ${conf}
+            </div>
+            <div class="rx-ai-card-body">${p.text}</div>
+          </div>
+        `);
+      }
+    }
+    el.innerHTML = cards.join('');
   }
 
   function renderFindings(findings) {
     const el = document.getElementById('rxFindings');
     if (!findings || findings.length === 0) {
-      el.innerHTML = '<li><div class="rx-finding-text">No findings recorded.</div></li>';
+      el.innerHTML = '<p style="color:var(--rx-text-dim); font-size:13px;">No findings recorded.</p>';
       return;
     }
-    el.innerHTML = findings.map(f => `
-      <li>
-        <span class="rx-sev ${f.severity}">${f.severity === 'danger' ? '!' : f.rank}</span>
-        <div class="rx-finding-text">
-          ${f.text}
-          ${f.note ? `<small>${f.note}</small>` : ''}
+    const teethNums = [];
+    el.innerHTML = findings.map(f => {
+      const tnums = parseToothNumbers(f.tooth);
+      teethNums.push(...tnums);
+      const icon = f.severity === 'danger' ? '!' : (f.rank || '');
+      const actionTags = [];
+      if (f.note) {
+        const notes = f.note.split(/[,;]/).map(s => s.trim()).filter(Boolean);
+        for (const n of notes.slice(0, 2)) actionTags.push(`<span class="tag">${n}</span>`);
+      }
+      return `
+        <div class="rx-finding" data-tooth-nums="${tnums.join(',')}">
+          <div class="rx-finding-rank ${f.severity}">${icon}</div>
+          <div class="rx-finding-text">
+            <strong>${f.tooth ? f.tooth + ' — ' : ''}</strong>${f.text}
+            ${f.note ? `<small>${f.note}</small>` : ''}
+            ${actionTags.length ? `<div class="rx-finding-action">${actionTags.join('')}</div>` : ''}
+          </div>
         </div>
-      </li>
-    `).join('');
+      `;
+    }).join('');
   }
 
   function renderMeasurements(measurements) {
@@ -548,30 +835,61 @@
 
   function renderAnnotations(annotations) {
     const el = document.getElementById('rxAnnotations');
-    if (!annotations || annotations.length === 0) {
-      el.innerHTML = '';
-      return;
-    }
-    el.innerHTML = annotations.map(a => `
-      <div class="rx-ann" style="left:${a.x}%; top:${a.y}%;">
-        <div class="rx-ann-dot ${a.severity}"></div>
-        <div class="rx-ann-label">${a.label}</div>
+    if (!annotations || annotations.length === 0) { el.innerHTML = ''; return; }
+    el.innerHTML = annotations.map((a, i) => `
+      <div class="rx-ann" style="left:${a.x}%; top:${a.y}%;" data-ann-id="${a.id}">
+        <div class="rx-ann-ring ${a.severity}"><span>${i + 1}</span></div>
+        <div class="rx-ann-tooltip">
+          <strong>${a.label}</strong>
+          <span class="tt-sev">${a.severity === 'danger' ? 'Urgent attention required' : a.severity === 'warn' ? 'Monitor or treat' : 'No action required'}</span>
+          ${a.confidence ? `<span class="tt-conf">AI Confidence: ${Math.round(a.confidence * 100)}%</span>` : ''}
+        </div>
       </div>
     `).join('');
+  }
+
+  function renderHeatmap(annotations) {
+    const svg = document.getElementById('rxHeatmap');
+    if (!annotations) { svg.innerHTML = ''; return; }
+    const defs = svg.querySelector('defs')?.outerHTML || '';
+    const circles = annotations.map(a => {
+      const grad = a.severity === 'danger' ? 'heatDanger' : a.severity === 'warn' ? 'heatWarn' : 'heatInfo';
+      const r = 60 + (a.confidence || 0.5) * 80;
+      return `<circle cx="${a.x * 9}" cy="${a.y * 4.5}" r="${r}" fill="url(#${grad})" opacity="0.6" />`;
+    }).join('');
+    svg.innerHTML = defs + circles;
+  }
+
+  function renderTimeline(timeline) {
+    const el = document.getElementById('rxTimeline');
+    if (!timeline || timeline.length === 0) {
+      document.getElementById('rxTimelineSect').style.display = 'none';
+      return;
+    }
+    el.innerHTML = timeline.map(e => `
+      <div class="rx-tl-item ${e.active ? 'active' : ''} ${e.severity || ''}">
+        <div class="rx-tl-date">${e.date}</div>
+        <div class="rx-tl-title">${e.title}</div>
+        <div class="rx-tl-desc">${e.desc}</div>
+      </div>
+    `).join('');
+    document.getElementById('rxTimelineSect').style.display = 'block';
   }
 
   function renderCompareBar(radiograph) {
     const el = document.getElementById('rxCompareBar');
     const priors = radiograph?.priors || [];
     el.innerHTML = `
-      <div class="rx-compare-chip on">Current — ${radiograph?.displayDate || 'Now'}</div>
-      ${priors.map(p => `<div class="rx-compare-chip">${p.label}</div>`).join('')}
+      <div class="rx-compare-chip on" data-prior="current">Current — ${radiograph?.displayDate || 'Now'}</div>
+      ${priors.map((p, i) => `<div class="rx-compare-chip" data-prior="${p.id}" data-index="${i}">${p.label}</div>`).join('')}
     `;
-    // Re-attach click handlers
     el.querySelectorAll('.rx-compare-chip').forEach(chip => {
       chip.addEventListener('click', () => {
         el.querySelectorAll('.rx-compare-chip').forEach(c => c.classList.remove('on'));
         chip.classList.add('on');
+        const priorId = chip.dataset.prior;
+        if (priorId !== 'current') selectPrior(parseInt(chip.dataset.index) || 0);
+        else deselectCompare();
       });
     });
   }
@@ -579,8 +897,61 @@
   function renderError(msg) {
     const html = `<div class="rx-error">${msg}</div>`;
     document.getElementById('rxAnalysis').innerHTML = html;
-    document.getElementById('rxFindings').innerHTML = `<li>${html}</li>`;
+    document.getElementById('rxFindings').innerHTML = html;
     document.getElementById('rxMeasurements').innerHTML = html;
+  }
+
+  /* ================================================================
+     COMPARISON SLIDER
+     ================================================================ */
+
+  function initCompareSlider() {
+    const handle = document.getElementById('rxCompareHandle');
+    const slider = document.getElementById('rxCompareSlider');
+    const layer = document.getElementById('rxCompareLayer');
+    let dragging = false;
+
+    handle.addEventListener('mousedown', () => dragging = true);
+    handle.addEventListener('touchstart', () => dragging = true, { passive: true });
+
+    const move = (clientX) => {
+      if (!dragging) return;
+      const wrap = document.getElementById('rxImageWrap');
+      const rect = wrap.getBoundingClientRect();
+      const pct = Math.max(5, Math.min(95, ((clientX - rect.left) / rect.width) * 100));
+      handle.style.left = pct + '%';
+      layer.style.clipPath = `inset(0 calc(100% - ${pct}%) 0 0)`;
+    };
+
+    document.addEventListener('mousemove', e => move(e.clientX));
+    document.addEventListener('touchmove', e => move(e.touches[0].clientX), { passive: true });
+    document.addEventListener('mouseup', () => dragging = false);
+    document.addEventListener('touchend', () => dragging = false);
+  }
+
+  function selectPrior(index) {
+    const prior = currentPriors[index];
+    if (!prior) return;
+    const layer = document.getElementById('rxCompareLayer');
+    const label = document.getElementById('rxCompareLabel');
+    const slider = document.getElementById('rxCompareSlider');
+    // Try to use prior image; fallback to filtered current
+    if (prior.imageUrl) {
+      layer.innerHTML = `<img src="${prior.imageUrl}" alt="Prior" style="width:100%;height:100%;object-fit:contain;" />`;
+    } else {
+      const current = document.querySelector('#rxImageContainer svg, #rxImageContainer img');
+      if (current) layer.innerHTML = ''; layer.appendChild(current.cloneNode(true));
+    }
+    label.textContent = prior.label || `Prior — ${prior.date}`;
+    slider.classList.add('active');
+    comparing = true;
+    document.getElementById('btnCompare').classList.add('active');
+  }
+
+  function deselectCompare() {
+    document.getElementById('rxCompareSlider').classList.remove('active');
+    comparing = false;
+    document.getElementById('btnCompare').classList.remove('active');
   }
 
   /* ================================================================
@@ -604,7 +975,6 @@
           Exam: ${h.examType}
         </div>
       </div>
-
       <div class="rx-print-patient">
         <div class="pp-row"><span class="pp-label">Patient</span><span class="pp-val">${p.name}</span></div>
         <div class="pp-row"><span class="pp-label">Date of Birth</span><span class="pp-val">${p.dob}</span></div>
@@ -613,17 +983,14 @@
         <div class="pp-row"><span class="pp-label">Referring Dentist</span><span class="pp-val">${p.referringDentist}</span></div>
         <div class="pp-row"><span class="pp-label">Report ID</span><span class="pp-val">${p.reportId}</span></div>
       </div>
-
       <figure class="rx-print-image">
         <div id="printImageSlot"></div>
         <figcaption>${report.image.caption}</figcaption>
       </figure>
-
       <div class="rx-print-section">
         <h4>Clinical Impressions</h4>
         ${report.impressions.map(i => `<p>${i}</p>`).join('')}
       </div>
-
       <div class="rx-print-section">
         <h4>Findings Summary</h4>
         <ul class="rx-print-findings">
@@ -632,24 +999,20 @@
           `).join('')}
         </ul>
       </div>
-
       <div class="rx-print-section">
         <h4>Recommendations</h4>
         ${report.recommendations.map((r, i) => `<p>${i + 1}. ${r}</p>`).join('')}
       </div>
-
       <div class="rx-print-signature">
         <div class="rx-print-sig-line">Interpreting Dentist — Date</div>
         <div class="rx-print-sig-line">Patient Acknowledgment — Date</div>
       </div>
-
       <div class="rx-print-footer">
         <span>This report was generated with AI-assisted analysis (Qwen3-VL) and reviewed by the interpreting dentist.</span>
         <span>Page 1 of 1</span>
       </div>
     `;
 
-    // Clone the visible image into the print slot
     const visibleImg = document.querySelector('#rxImageContainer svg, #rxImageContainer img');
     const printSlot = document.getElementById('printImageSlot');
     if (visibleImg && printSlot) {
@@ -668,16 +1031,13 @@
       currentPatient = record.patient;
       currentRadiograph = record.radiographs[0] || null;
       currentAnalysis = record.analysis;
+      currentPriors = currentRadiograph?.priors || [];
 
-      if (!currentPatient) {
-        renderError(`Patient ${patientId} not found.`);
-        return;
-      }
+      if (!currentPatient) { renderError(`Patient ${patientId} not found.`); return; }
 
       renderPatientChip(currentPatient, currentRadiograph);
 
       if (currentRadiograph) {
-        // If a real image URL exists, swap it in
         if (currentRadiograph.imageUrl) {
           const container = document.getElementById('rxImageContainer');
           container.innerHTML = `<img src="${currentRadiograph.imageUrl}" alt="Radiograph ${currentRadiograph.id}" style="display:block; width:100%; height:auto;" />`;
@@ -690,21 +1050,21 @@
         renderFindings(currentAnalysis.findings);
         renderMeasurements(currentAnalysis.measurements);
         renderAnnotations(currentAnalysis.annotations);
+        renderHeatmap(currentAnalysis.annotations);
+        renderToothChart(currentAnalysis.findings);
+        const timeline = buildTimeline(currentPatient, currentRadiograph, currentAnalysis);
+        renderTimeline(timeline);
 
-        // Build print report
         const report = buildReport(currentPatient, currentRadiograph, currentAnalysis);
         renderPrintReport(report);
         document.getElementById('btnPrint').disabled = false;
       } else {
-        document.getElementById('rxAnalysis').innerHTML = '<p>No analysis available.</p>';
-        document.getElementById('rxFindings').innerHTML = '<li><div class="rx-finding-text">No findings available.</div></li>';
+        document.getElementById('rxAnalysis').innerHTML = '<p style="color:var(--rx-text-dim); font-size:13px;">No analysis available.</p>';
+        document.getElementById('rxFindings').innerHTML = '<p style="color:var(--rx-text-dim); font-size:13px;">No findings available.</p>';
         document.getElementById('rxMeasurements').innerHTML = '<p style="color:var(--rx-text-dim); font-size:13px;">No measurements available.</p>';
       }
 
-      // Show search if no default patient configured
-      if (!PMS_CONFIG.defaultPatientId) {
-        document.getElementById('rxSearch').style.display = 'flex';
-      }
+      if (!PMS_CONFIG.defaultPatientId) document.getElementById('rxSearch').style.display = 'flex';
 
     } catch (err) {
       console.error('[Radiograph Viewer]', err);
@@ -714,7 +1074,7 @@
   }
 
   /* ================================================================
-     GLOBAL FUNCTIONS (exposed to inline onclick handlers)
+     GLOBAL FUNCTIONS
      ================================================================ */
 
   window.loadPatientFromInput = async function() {
@@ -727,7 +1087,6 @@
 
   window.printReport = function() {
     if (!currentPatient || !currentAnalysis) return;
-    // Re-render print area with latest data
     const report = buildReport(currentPatient, currentRadiograph, currentAnalysis);
     renderPrintReport(report);
     window.print();
@@ -739,30 +1098,78 @@
   };
 
   window.toggleCompare = function() {
-    comparing = !comparing;
-    document.getElementById('rxViewport').style.background = comparing
-      ? 'linear-gradient(90deg, #000 50%, #1a1a1a 50%)' : '#000';
+    if (comparing) { deselectCompare(); }
+    else if (currentPriors.length > 0) { selectPrior(0); }
+    else { alert('No prior radiographs available for comparison.'); }
+  };
+
+  window.toggleHeatmap = function() {
+    heatmapOn = !heatmapOn;
+    document.getElementById('rxHeatmap').classList.toggle('active', heatmapOn);
+    document.getElementById('btnHeatmap').classList.toggle('active', heatmapOn);
+  };
+
+  window.startDictation = function() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { alert('Voice dictation is not supported in this browser. Try Chrome or Edge.'); return; }
+    const rec = new SR();
+    rec.lang = 'en-US';
+    rec.interimResults = false;
+    rec.maxAlternatives = 1;
+    rec.start();
+    const btn = document.querySelector('button[onclick="startDictation()"]');
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#FF6B6B;animation:pulseDot 1s infinite;margin-right:4px;"></span>Listening…';
+    rec.onresult = e => {
+      const text = e.results[0][0].transcript;
+      btn.innerHTML = orig;
+      // Create a new finding card from dictated text
+      const findingsEl = document.getElementById('rxFindings');
+      const div = document.createElement('div');
+      div.className = 'rx-finding';
+      div.innerHTML = `
+        <div class="rx-finding-rank info">✎</div>
+        <div class="rx-finding-text"><strong>Dictated note:</strong> ${text}<small>Added ${new Date().toLocaleTimeString()}</small></div>
+      `;
+      findingsEl.insertBefore(div, findingsEl.firstChild);
+    };
+    rec.onerror = () => { btn.innerHTML = orig; };
+    rec.onend = () => { btn.innerHTML = orig; };
+  };
+
+  window.shareReport = function() {
+    if (!currentPatient) return;
+    const text = `Radiograph report for ${currentPatient.firstName} ${currentPatient.lastName} — ${currentRadiograph?.type || ''} on ${currentRadiograph?.displayDate || ''}`;
+    if (navigator.share) {
+      navigator.share({ title: 'Radiograph Report', text });
+    } else {
+      navigator.clipboard.writeText(text).then(() => alert('Report summary copied to clipboard.'));
+    }
+  };
+
+  window.addToTreatmentPlan = function() {
+    if (!currentAnalysis?.findings) return;
+    const urgent = currentAnalysis.findings.filter(f => f.severity === 'danger' || f.severity === 'warn');
+    const plan = urgent.map(f => `${f.tooth || ''}: ${f.text}`).join('\n');
+    navigator.clipboard.writeText(plan).then(() => alert(`${urgent.length} items copied to treatment plan clipboard.`));
   };
 
   /* ================================================================
      INIT
      ================================================================ */
 
-  // Header scroll shadow
   const header = document.getElementById('site-header');
   const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 24);
-  window.addEventListener('scroll', onScroll, { passive:true });
+  window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 
-  // Allow Enter key in search
   document.getElementById('patientSearchInput')?.addEventListener('keydown', e => {
     if (e.key === 'Enter') window.loadPatientFromInput();
   });
 
-  // Diagnostics in console
+  initCompareSlider();
   diagnose();
 
-  // Load default or configured patient
   const targetId = PMS_CONFIG.defaultPatientId || '78429';
   loadAndRender(targetId);
 </script>
