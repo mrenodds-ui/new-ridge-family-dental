@@ -375,6 +375,7 @@ const DISPATCH = {
   mock:    { getPatient: mockGetPatient,    getRadiographs: mockGetRadiographs,    getAnalysis: mockGetAnalysis },
   json:    { getPatient: jsonGetPatient,    getRadiographs: jsonGetRadiographs,    getAnalysis: jsonGetAnalysis },
   opendental: { getPatient: odGetPatient,   getRadiographs: odGetRadiographs,      getAnalysis: odGetAnalysis },
+  softdent:{ getPatient: jsonGetPatient,    getRadiographs: jsonGetRadiographs,    getAnalysis: jsonGetAnalysis },
   dentrix: { getPatient: dentrixGetPatient, getRadiographs: dentrixGetRadiographs, getAnalysis: dentrixGetAnalysis },
   generic: { getPatient: genericGetPatient, getRadiographs: genericGetRadiographs, getAnalysis: genericGetAnalysis }
 };

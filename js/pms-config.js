@@ -5,13 +5,15 @@
 
 export const PMS_CONFIG = {
   /**
-   * Mode: 'mock' | 'json' | 'opendental' | 'dentrix' | 'generic'
+   * Mode: 'mock' | 'json' | 'softdent' | 'opendental' | 'dentrix' | 'generic'
    *
-   * - mock:    Uses built-in demo data (no external system needed)
-   * - json:    Loads from local JSON files in /data/ directory
+   * - mock:      Uses built-in demo data (no external system needed)
+   * - json:      Loads from local JSON files in /data/ directory
+   * - softdent:  Same as json, but data was produced by softdent-converter.py
+   *              from your SoftDent CSV exports. Run the converter first.
    * - opendental: Connects to Open Dental REST API
-   * - dentrix: Connects via Dentrix API (requires proxy/CORS)
-   * - generic: Connects to any REST API you configure
+   * - dentrix:   Connects via Dentrix API (requires proxy/CORS)
+   * - generic:   Connects to any REST API you configure
    */
   mode: 'mock',
 
