@@ -127,11 +127,11 @@ const MOCK_ANALYSIS = {
     { label: 'Mandibular canal clearance', value: '4.8 mm' }
   ],
   annotations: [
-    { id: 'ann-1', x: 28, y: 30, label: 'Implant #19 — Osseointegrated', severity: 'info' },
-    { id: 'ann-2', x: 62, y: 30, label: 'Implant #30 — Osseointegrated', severity: 'info' },
-    { id: 'ann-3', x: 44, y: 68, label: 'Root canal #24 — Recurrent decay', severity: 'warn' },
-    { id: 'ann-4', x: 52, y: 65, label: '#25 — Periapical radiolucency', severity: 'danger' },
-    { id: 'ann-5', x: 36, y: 36, label: '#14 — Bone loss 3-4 mm', severity: 'warn' }
+    { id: 'ann-1', x: 28, y: 30, label: 'Implant #19 — Osseointegrated', severity: 'info', confidence: 0.97 },
+    { id: 'ann-2', x: 62, y: 30, label: 'Implant #30 — Osseointegrated', severity: 'info', confidence: 0.96 },
+    { id: 'ann-3', x: 44, y: 68, label: 'Root canal #24 — Recurrent decay', severity: 'warn', confidence: 0.89 },
+    { id: 'ann-4', x: 52, y: 65, label: '#25 — Periapical radiolucency', severity: 'danger', confidence: 0.94 },
+    { id: 'ann-5', x: 36, y: 36, label: '#14 — Bone loss 3-4 mm', severity: 'warn', confidence: 0.91 }
   ],
   report: {
     clinicalImpressions: [
@@ -148,6 +148,106 @@ const MOCK_ANALYSIS = {
       'Annual panoramic recall for implant #19 and #30 monitoring.'
     ]
   }
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   PHASE 2 — COLLABORATION & TREATMENT PLAN MOCK DATA
+   ═══════════════════════════════════════════════════════════════════ */
+
+const MOCK_ANNOTATION_THREADS = [
+  {
+    id: 'thread-1',
+    annotationId: 'ann-1',
+    tooth: '#19',
+    author: { initials: 'MR', name: 'Dr. Reno', role: 'dentist' },
+    timestamp: '2026-07-25T14:30:00Z',
+    text: 'Implant #19 looks stable. No peri-implantitis signs on this panoramic. Crestal bone level is excellent at 1.2 mm.',
+    resolved: false,
+    replies: [
+      {
+        id: 'reply-1',
+        author: { initials: 'HS', name: 'Hygienist Smith', role: 'hygienist' },
+        timestamp: '2026-07-25T14:35:00Z',
+        text: '@Dr. Reno Agreed. Patient reports no discomfort and good oral hygiene. Probing depths were 2-3mm at recall.',
+        mentions: ['Dr. Reno']
+      }
+    ]
+  },
+  {
+    id: 'thread-2',
+    annotationId: 'ann-4',
+    tooth: '#25',
+    author: { initials: 'MR', name: 'Dr. Reno', role: 'dentist' },
+    timestamp: '2026-07-25T14:32:00Z',
+    text: '#25 periapical radiolucency is concerning. Previous RCT was done 3 years ago. Need CBCT to assess for VRF before making a treatment decision.',
+    resolved: false,
+    replies: [
+      {
+        id: 'reply-2',
+        author: { initials: 'JE', name: 'Dr. Evans', role: 'endodontist' },
+        timestamp: '2026-07-25T15:10:00Z',
+        text: '@Dr. Reno I can fit them in tomorrow at 2pm for CBCT and consult. Based on the size, I am leaning toward extraction + implant rather than retreatment.',
+        mentions: ['Dr. Reno']
+      }
+    ]
+  },
+  {
+    id: 'thread-3',
+    annotationId: 'ann-3',
+    tooth: '#24',
+    author: { initials: 'MR', name: 'Dr. Reno', role: 'dentist' },
+    timestamp: '2026-07-25T14:40:00Z',
+    text: 'Crown margin decay on #24. The existing PFM is 7 years old. I would recommend a zirconia replacement this time for better tissue response.',
+    resolved: true,
+    replies: []
+  }
+];
+
+const MOCK_TREATMENT_OVERLAYS = [
+  {
+    id: 'treat-1',
+    type: 'crown',
+    tooth: '#24',
+    x: 44, y: 68,
+    material: 'zirconia',
+    status: 'proposed',
+    note: 'Replace existing PFM crown with recurrent mesial caries'
+  },
+  {
+    id: 'treat-2',
+    type: 'extraction',
+    tooth: '#25',
+    x: 52, y: 65,
+    status: 'proposed',
+    note: 'Extraction due to failed RCT + periapical pathology'
+  },
+  {
+    id: 'treat-3',
+    type: 'implant',
+    tooth: '#25',
+    x: 52, y: 65,
+    status: 'proposed',
+    note: 'Implant placement 3 months post-extraction'
+  },
+  {
+    id: 'treat-4',
+    type: 'srp',
+    tooth: '#14–16',
+    x: 36, y: 36,
+    status: 'scheduled',
+    note: 'Scaling & root planing — q3mo maintenance'
+  }
+];
+
+const MOCK_PACS_STATUS = {
+  connected: true,
+  lastSync: '2026-07-25T14:20:00Z',
+  queueSize: 0,
+  latency: 45,
+  modality: 'Panoramic',
+  server: 'PACS-MAIN-01',
+  studiesToday: 12,
+  autoSync: true
 };
 
 /* ================================================================
@@ -393,9 +493,6 @@ function getDispatcher() {
    PUBLIC API
    ================================================================ */
 
-/**
- * Load a patient by ID. Returns normalized patient object.
- */
 export async function loadPatient(id) {
   const key = cacheKey(PMS_CONFIG.mode, 'patient', id);
   let data = getCached(key);
@@ -405,9 +502,6 @@ export async function loadPatient(id) {
   return data;
 }
 
-/**
- * Load radiographs for a patient. Returns array.
- */
 export async function loadRadiographs(patientId) {
   const key = cacheKey(PMS_CONFIG.mode, 'radiographs', patientId);
   let data = getCached(key);
@@ -417,9 +511,6 @@ export async function loadRadiographs(patientId) {
   return data;
 }
 
-/**
- * Load AI analysis for a specific radiograph. Returns analysis object.
- */
 export async function loadAnalysis(radiographId) {
   const key = cacheKey(PMS_CONFIG.mode, 'analysis', radiographId);
   let data = getCached(key);
@@ -429,9 +520,6 @@ export async function loadAnalysis(radiographId) {
   return data;
 }
 
-/**
- * Load everything for a patient at once.
- */
 export async function loadPatientRecord(patientId) {
   const patient = await loadPatient(patientId);
   const radiographs = await loadRadiographs(patientId);
@@ -442,9 +530,6 @@ export async function loadPatientRecord(patientId) {
   return { patient, radiographs, analysis };
 }
 
-/**
- * Build a print-ready report object from loaded data.
- */
 export function buildReport(patient, radiograph, analysis) {
   const now = new Date();
   return {
@@ -476,9 +561,6 @@ export function buildReport(patient, radiograph, analysis) {
   };
 }
 
-/**
- * Export patient record as a JSON file (for backup or transfer).
- */
 export function exportRecord(record, filename = 'patient-record.json') {
   const blob = new Blob([JSON.stringify(record, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -487,6 +569,57 @@ export function exportRecord(record, filename = 'patient-record.json') {
   a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+/* ================================================================
+   PHASE 2 — COLLABORATION & TREATMENT PLAN API
+   ═══════════════════════════════════════════════════════════════ */
+
+let inMemoryThreads = [...MOCK_ANNOTATION_THREADS];
+
+export async function loadAnnotationThreads(radiographId) {
+  await delay(100);
+  return inMemoryThreads.filter(t => {
+    const ann = MOCK_ANALYSIS.annotations.find(a => a.id === t.annotationId);
+    return ann != null;
+  });
+}
+
+export async function saveAnnotationThread(thread) {
+  await delay(100);
+  const existing = inMemoryThreads.findIndex(t => t.id === thread.id);
+  if (existing >= 0) inMemoryThreads[existing] = thread;
+  else inMemoryThreads.push({ ...thread, id: thread.id || `thread-${Date.now()}` });
+  return thread;
+}
+
+export async function loadTreatmentOverlays(radiographId) {
+  await delay(100);
+  return MOCK_TREATMENT_OVERLAYS;
+}
+
+export async function loadPacsStatus() {
+  await delay(80);
+  const status = { ...MOCK_PACS_STATUS };
+  status.latency = Math.max(20, status.latency + Math.floor(Math.random() * 20 - 10));
+  status.lastSync = new Date().toISOString();
+  return status;
+}
+
+export function buildTreatmentPlanReport(overlays) {
+  if (!overlays || overlays.length === 0) return [];
+  const PROCEDURE_NAMES = {
+    crown: 'Crown', implant: 'Dental Implant', extraction: 'Extraction',
+    root_canal: 'Root Canal Therapy', filling: 'Composite Filling',
+    srp: 'Scaling & Root Planing', veneer: 'Veneer', bridge: 'Bridge'
+  };
+  return overlays.map(o => ({
+    tooth: o.tooth,
+    procedure: PROCEDURE_NAMES[o.type] || o.type,
+    material: o.material || '—',
+    status: o.status,
+    note: o.note
+  }));
 }
 
 /* ================================================================
