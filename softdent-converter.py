@@ -335,7 +335,80 @@ def generate_analysis_stub(patient_id, radiograph_id, out_dir):
         json.dump(stub, out, indent=2, ensure_ascii=False)
     print(f"  ✓ Wrote analysis stub: {out_path}")
 
+def run(patients_file, procedures_file=None, output_dir='./data', patient_id=None, stub_analysis=False):
+    """Run the conversion programmatically (called by watcher or batch script)."""
+    if not os.path.exists(patients_file):
+        print(f"ERROR: Patient file not found: {patients_file}")
+        return False
+
+    out_path = Path(output_dir)
+    out_path.mkdir(parents=True, exist_ok=True)
+
+    # 1. Convert patients
+    print(f"\n[1/3] Converting patients from: {patients_file}")
+    patient_count = convert_patients(patients_file, output_dir)
+
+    # 2. Convert procedures → radiographs
+    rx_count = 0
+    if procedures_file:
+        if not os.path.exists(procedures_file):
+            print(f"WARNING: Procedure file not found: {procedures_file}")
+        else:
+            print(f"\n[2/3] Converting procedures from: {procedures_file}")
+            rx_count = convert_radiographs(procedures_file, output_dir, patient_id)
+
+    # 3. Generate analysis stubs if requested
+    if stub_analysis:
+        print(f"\n[3/3] Generating analysis stubs...")
+        rx_dir = Path(output_dir) / 'radiographs'
+        if rx_dir.exists():
+            for rx_file in rx_dir.glob('patient-*.json'):
+                with open(rx_file, 'r', encoding='utf-8') as f:
+                    rx_list = json.load(f)
+                for rx in rx_list:
+                    generate_analysis_stub(rx['patientId'], rx['id'], output_dir)
+        else:
+            print("  No radiograph files found — skipping stubs.")
+
+    print("\n" + "=" * 60)
+    print(f"Done! {patient_count} patients converted.")
+    if rx_count:
+        print(f"       {rx_count} patient radiograph lists created.")
+    print(f"\nNext steps:")
+    print(f"  1. Set mode: 'json' in js/pms-config.js")
+    print(f"  2. Open radiographs.html — data will load from {out_path}")
+    print(f"  3. Replace analysis stubs with real AI output when ready.")
+    print("=" * 60)
+    return True
+
+
 def main():
+    parser = argparse.ArgumentParser(
+        description='Convert SoftDent exports to Radiograph Viewer JSON'
+    )
+    parser.add_argument('--patients', '-p', required=True,
+                        help='Path to SoftDent patient export CSV')
+    parser.add_argument('--procedures', '-r', default=None,
+                        help='Path to SoftDent procedure/treatment export CSV (optional)')
+    parser.add_argument('--output', '-o', default='./data',
+                        help='Output directory for JSON files (default: ./data)')
+    parser.add_argument('--patient-id', default=None,
+                        help='Override patient ID for procedure file (if it lacks patient column)')
+    parser.add_argument('--stub-analysis', action='store_true',
+                        help='Generate empty analysis stubs for each radiograph')
+    args = parser.parse_args()
+
+    print("=" * 60)
+    print("SoftDent Export Converter")
+    print("=" * 60)
+
+    run(
+        patients_file=args.patients,
+        procedures_file=args.procedures,
+        output_dir=args.output,
+        patient_id=args.patient_id,
+        stub_analysis=args.stub_analysis
+    )
     parser = argparse.ArgumentParser(
         description='Convert SoftDent exports to Radiograph Viewer JSON'
     )
