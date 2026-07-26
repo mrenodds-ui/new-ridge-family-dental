@@ -1,0 +1,4 @@
+AuthType Basic
+AuthName "New Ridge Staff Portal"
+AuthUserFile "C:/new-ridge-staff-page/dental-office-manager/app/dist/forms/.htpasswd"
+Require valid-user

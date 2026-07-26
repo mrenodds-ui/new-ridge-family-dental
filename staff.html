@@ -5,11 +5,39 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Staff Resources — New Ridge Family Dental</title>
 <meta name="description" content="Staff forms, handouts, and reference documents for the New Ridge Family Dental team." />
+<meta name="robots" content="noindex, nofollow" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="css/style.css" />
 <style>
+
+  /* === Skip link === */
+  .skip-link{ position:absolute; top:-40px; left:0; background:var(--ink); color:#fff; padding:8px 16px; font-size:13px; z-index:10000; transition:top .2s; }
+  .skip-link:focus{ top:0; }
+
+  /* === HIPAA banner === */
+  .hipaa-banner{
+    background:var(--sand-mist); border-left:4px solid var(--bronze);
+    padding:14px 20px; font-size:13.5px; color:var(--bronze-deep);
+    background:#fdf6f0; border-left:4px solid var(--bronze);
+    padding:14px 20px; font-size:13.5px; color:#5a3d1a;
+    display:flex; align-items:center; gap:12px; max-width:1200px; margin:0 auto;
+  }
+  .hipaa-banner svg{ flex-shrink:0; }
+
+  /* === Search === */
+  .doc-search-wrap{ max-width:560px; margin:0 auto 48px; position:relative; }
+  .doc-search-wrap input{
+    width:100%; padding:14px 48px 14px 18px; font-size:15px;
+    border:1px solid var(--line); border-radius:3px; font-family:inherit;
+    background:#fff;
+  }
+  .doc-search-wrap input:focus{ outline:none; border-color:var(--bronze); }
+  .doc-search-wrap svg{ position:absolute; right:16px; top:50%; transform:translateY(-50%); pointer-events:none; }
+  .no-results{ text-align:center; color:var(--ink-soft); padding:40px 0; font-size:15px; display:none; }
+
+  /* === Form sections === */
   .form-section{ padding:clamp(56px,8vh,96px) 0; border-top:1px solid var(--line); }
   .form-section:first-of-type{ border-top:none; }
   .form-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:clamp(32px,4vw,64px); }
@@ -36,20 +64,33 @@
     padding:3px 10px; border:1px solid var(--line); color:var(--olive);
   }
   .form-list a:hover .badge{ border-color:var(--bronze); color:var(--bronze-deep); }
+  .form-list .badge.internal{ background:var(--sand-mist); border-color:var(--sand); color:var(--bronze-deep); }
   .form-list .arrow{ color:var(--bronze); font-size:13px; transition:transform .25s ease; }
   .form-list a:hover .arrow{ transform:translateX(4px); }
+  .form-list .doc-date{ font-family:var(--mono); font-size:10px; color:var(--olive); margin-right:8px; }
   .section-note{ color:var(--ink-soft); font-size:15px; max-width:56ch; margin-top:14px; }
-  .dl-hint{
-    font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase;
-    color:var(--olive); margin-top:8px;
+  .handbook-note{
+    background:var(--cream-2); border:1px dashed var(--line);
+    background:#f8f8f6; border:1px dashed var(--line); padding:14px 18px;
+    border-radius:3px; font-size:14px; color:var(--ink-soft); margin-top:18px;
   }
+
+  /* Hidden by search filter */
+  .form-list li.hidden{ display:none; }
+  .form-group.hidden{ display:none; }
 </style>
 </head>
 <body>
+
+<div class="grain" aria-hidden="true"></div>
+
+
 <div class="grain" aria-hidden="true"></div>
 <div class="guides" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
 
-<div class="topbar">Now welcoming new patients <i>·</i> Wichita, Kansas <i>·</i> (316) 722-6060</div>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<div class="topbar">Now welcoming new patients <i aria-hidden="true">·</i> Wichita, Kansas <i aria-hidden="true">·</i> (316) 722-6060</div>
 
 <header id="site-header">
   <div class="wrap nav">
@@ -68,19 +109,19 @@
       <li><a href="about.html">About</a></li>
       <li><a href="insurance.html">Insurance &amp; Payment</a></li>
       <li><a href="contact.html">Contact</a></li>
-      <li><a class="active" href="staff.html">Staff</a></li>
+      <li><a class="active" href="staff.html" aria-current="page">Staff</a></li>
     </ul>
-    <a class="btn btn-solid" href="contact.html"><span>Request appointment</span><span class="arr">→</span></a>
+    <a class="btn btn-solid" href="contact.html"><span>Request appointment</span><span class="arr" aria-hidden="true">→</span></a>
   </div>
 </header>
 
-<main id="top">
+<main id="main-content">
 
   <!-- ============ HERO ============ -->
-  <section class="page-hero">
+  <section class="page-hero" aria-labelledby="hero-heading">
     <div class="wrap">
       <span class="eyebrow"><span class="num">01</span> Internal resources</span>
-      <h1 class="display">Forms, handouts, <em>and references.</em></h1>
+      <h1 class="display" id="hero-heading">Forms, handouts, <em>and references.</em></h1>
       <p class="lede">
         One place for every document the team needs — patient handouts sorted by treatment stage,
         front-desk forms organized by purpose, and policies at a glance.
@@ -88,149 +129,172 @@
     </div>
   </section>
 
+  <!-- ============ HIPAA WARNING ============ -->
+  <div class="wrap" style="padding:24px 0 0;">
+    <div class="hipaa-banner" role="alert">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--bronze-deep)" stroke-width="2" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      <strong>Confidential — Internal Use Only.</strong> These documents contain HIPAA-protected and practice-internal information. Do not share links or files with unauthorized individuals.
+    </div>
+  </div>
+
+  <!-- ============ SEARCH ============ -->
+  <section style="padding:clamp(32px,5vh,48px) 0 0;">
+    <div class="wrap">
+      <div class="doc-search-wrap">
+        <input type="search" id="doc-search" placeholder="Search documents by name…" aria-label="Search documents" />
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--olive)" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>"search" id="doc-search" placeholder="Search documents by name…" aria-label="Search documents" />
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--olive)" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>"18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--olive)" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>"18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--olive)" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>"18" height="18" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      </div>
+      <p class="no-results" id="no-results">No documents match your search.</p>
+    </div>
+  </section>
+
   <!-- ============ PATIENT HANDOUTS ============ -->
-  <section class="form-section hairline-top" id="patient-handouts">
+  <section class="form-section" id="patient-handouts" aria-labelledby="ph-heading">
     <div class="wrap">
       <div class="sec-head rv">
         <span class="eyebrow"><span class="num">02</span> Patient handouts</span>
-        <h2 class="display">Care instructions <em>by treatment.</em></h2>
+        <h2 class="display" id="ph-heading">Care instructions <em>by treatment.</em></h2>
         <p class="section-note">Printed or emailed after procedures — every handout a patient may need, grouped by when it applies.</p>
       </div>
 
       <div class="form-grid">
-        <div class="form-group rv">
+        <div class="form-group rv" data-group="post-treatment">
           <h3>Post-Treatment Care</h3>
           <ul class="form-list">
             <li><a href="forms/patient-handouts/post-treatment/Tab%202%20%20%20%E2%80%93%20Post%20Treatment%20%E2%80%93%20Bridge%20Preparation%20Care.docx" download>
               <span class="f-name">Bridge Preparation Care</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="post-treatment/bridge">Updated Jul 2026</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/patient-handouts/post-treatment/Tab%203%20%20%20%E2%80%93%20Post%20Treatment%20%E2%80%93%20Crown%20Placement%20Care.docx" download>
               <span class="f-name">Crown Placement Care</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="post-treatment/crown-place">Updated Jul 2026</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/patient-handouts/post-treatment/Tab%204%20%20%20%E2%80%93%20Post%20Treatment%20%E2%80%93%20Crown%20Preparation%20Care.docx" download>
               <span class="f-name">Crown Preparation Care</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="post-treatment/crown-prep">Updated Jul 2026</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/patient-handouts/post-treatment/Tab%205%20%20%20%E2%80%93%20Post%20Treatment%20%E2%80%93%20Dental%20Filling%20Care.docx" download>
               <span class="f-name">Dental Filling Care</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="post-treatment/filling">Updated Jul 2026</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/patient-handouts/post-treatment/Tab%206%20%20%20%E2%80%93%20Post%20Treatment%20%E2%80%93%20Denture%20Care.docx" download>
               <span class="f-name">Denture Care</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="post-treatment/denture">Updated Jul 2026</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/patient-handouts/post-treatment/Tab%207%20%20%20%E2%80%93%20Post%20Treatment%20%E2%80%93%20Home%20Whitening%20Trays%20and%20Gels%20Care.docx" download>
               <span class="f-name">Home Whitening Trays &amp; Gels Care</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="post-treatment/whitening">Updated Jul 2026</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/patient-handouts/post-treatment/Tab%208%20%20%20%E2%80%93%20Post%20Treatment%20%E2%80%93%20Night%20Guard%20Care.docx" download>
               <span class="f-name">Night Guard Care</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="post-treatment/night-guard">Updated Jul 2026</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/patient-handouts/post-treatment/Tab%209%20%20%20%E2%80%93%20Post%20Treatment%20%E2%80%93%20Nitrous%20Oxide%20(Laughing%20Gas)%20for%20Adults.docx" download>
               <span class="f-name">Nitrous Oxide (Laughing Gas) for Adults</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="post-treatment/nitrous-adult">Updated Jul 2026</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/patient-handouts/post-treatment/Tab%2010%20%E2%80%93%20Post%20Treatment%20%E2%80%93%20Nitrous%20Oxide%20(Laughing%20Gas)%20for%20Children.docx" download>
               <span class="f-name">Nitrous Oxide (Laughing Gas) for Children</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="post-treatment/nitrous-child">Updated Jul 2026</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/patient-handouts/post-treatment/Tab%2011%20%E2%80%93%20Post%20Treatment%20%E2%80%93%20Porcelain%20Veneers%20Care.docx" download>
               <span class="f-name">Porcelain Veneers Care</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="post-treatment/veneers">Updated Jul 2026</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/patient-handouts/post-treatment/Tab%2012%20%E2%80%93%20Post%20Treatment%20%E2%80%93%20Root%20Canal%20Care.docx" download>
               <span class="f-name">Root Canal Care</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="post-treatment/root-canal">Updated Jul 2026</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/patient-handouts/post-treatment/Tab%2013%20%E2%80%93%20Post%20Treatment%20%E2%80%93%20Scaling%20and%20Root%20Planing%20Care.docx" download>
               <span class="f-name">Scaling &amp; Root Planing Care</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="post-treatment/scaling">Updated Jul 2026</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
           </ul>
         </div>
 
-        <div class="form-group rv">
+        <div class="form-group rv" data-group="pre-treatment">
           <h3>Pre-Treatment &amp; Referrals</h3>
           <ul class="form-list">
             <li><a href="forms/patient-handouts/pre-treatment/Tab%2014%20%E2%80%93%20Pre%20Treatment%20%E2%80%93%20Cardiac%20Clearance.docx" download>
               <span class="f-name">Cardiac Clearance</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="pre-treatment/cardiac">Updated Jul 2026</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/patient-handouts/pre-treatment/Tab%2015%20%E2%80%93%20Pre%20Treatment%20%E2%80%93%20Helping%20Your%20Child%20Through%20a%20Dental%20Fillings.docx" download>
               <span class="f-name">Helping Your Child Through a Dental Filling</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="pre-treatment/child-filling">Updated Jul 2026</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/patient-handouts/pre-treatment/Tab%2016%20%E2%80%93%20Pre%20Treatment%20%E2%80%93%20Helping%20Your%20Child%20Through%20a%20Tooth%20Extraction.docx" download>
               <span class="f-name">Helping Your Child Through a Tooth Extraction</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="pre-treatment/child-extract">Updated Jul 2026</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/patient-handouts/pre-treatment/Tab%2017%20%E2%80%93%20Pre%20Treatment%20%E2%80%93%20NRFD%20Treatment%20%E2%80%93%20Your%20Treatment%20Plan.docx" download>
               <span class="f-name">Your Treatment Plan (NRFD)</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="pre-treatment/plan">Updated Jul 2026</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/patient-handouts/referring-treatment/Tab%2018%20%E2%80%93%20Referring%20Treatment%20%E2%80%93%20Endodontist.docx" download>
               <span class="f-name">Referral — Endodontist</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="referring/endodontist">Updated Jul 2026</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/patient-handouts/referring-treatment/Tab%2019%20%E2%80%93%20Referring%20Treatment%20%E2%80%93%20Oral%20Surgeon.docx" download>
               <span class="f-name">Referral — Oral Surgeon</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="referring/oral-surgeon">Updated Jul 2026</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/patient-handouts/referring-treatment/Tab%2020%20%E2%80%93%20Referring%20Treatment%20%E2%80%93%20Orthodontist.docx" download>
               <span class="f-name">Referral — Orthodontist</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="referring/orthodontist">Updated Jul 2026</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/patient-handouts/referring-treatment/Tab%2021%20%E2%80%93%20Referring%20Treatment%20%E2%80%93%20Pediatric%20Dentist.docx" download>
               <span class="f-name">Referral — Pediatric Dentist</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="referring/pediatric">Updated Jul 2026</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/patient-handouts/referring-treatment/Tab%2022%20%E2%80%93%20Referring%20Treatment%20%E2%80%93%20Periodontist.docx" download>
               <span class="f-name">Referral — Periodontist</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="referring/periodontist">Updated Jul 2026</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/patient-handouts/referring-treatment/Tab%2024%20%E2%80%93%20Referring%20Treatment%20%E2%80%93%20Prosthodontist.docx" download>
               <span class="f-name">Referral — Prosthodontist</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="referring/prosthodontist">Updated Jul 2026</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
           </ul>
         </div>
       </div>
 
-      <div class="form-group rv" style="margin-top:clamp(40px,5vh,64px)">
+      <div class="form-group rv" data-group="general" style="margin-top:clamp(40px,5vh,64px)">
         <h3>General</h3>
         <ul class="form-list" style="max-width:640px">
           <li><a href="forms/patient-handouts/general/Tab%201%20%20%20%E2%80%93%20General%20%E2%80%93%20CareCredit%20Application%20(refer%20to%20patient%20handbook,%20empty).docx" download>
             <span class="f-name">CareCredit Application (refer to patient handbook, empty)</span>
-            <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+            <span class="f-meta"><span class="doc-date" data-file="general/carecredit">Updated Jul 2026</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
           </a></li>
         </ul>
+        <div class="handbook-note">
+          <strong>Patient Handbook:</strong> Refer patients to the printed handbook for full CareCredit instructions. If you need a replacement master copy, contact the office manager.
+        </div>
       </div>
     </div>
   </section>
 
   <!-- ============ FRONT DESK REFERENCE ============ -->
-  <section class="form-section hairline-top" id="front-desk">
+  <section class="form-section" id="front-desk" aria-labelledby="fd-heading">
     <div class="wrap">
       <div class="sec-head rv">
         <span class="eyebrow"><span class="num">03</span> Front desk reference</span>
-        <h2 class="display">Forms, policies, <em>and workflows.</em></h2>
+        <h2 class="display" id="fd-heading">Forms, policies, <em>and workflows.</em></h2>
         <p class="section-note">Everything the front desk needs — intake forms, financial policies, handouts, and HIPAA documentation.</p>
       </div>
 
       <div class="form-grid">
-        <div class="form-group rv">
+        <div class="form-group rv" data-group="front-desk">
           <h3>Handouts</h3>
           <ul class="form-list">
             <li><a href="forms/front-desk/handouts/Tab%201%20%20%20%E2%80%93%20Handout%20%E2%80%93%20Calendar,%20any%20year.xlsx" download>
               <span class="f-name">Calendar (any year)</span>
-              <span class="f-meta"><span class="badge">.xlsx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="handouts/calendar">Updated Jul 2026</span><span class="badge">.xlsx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/front-desk/handouts/Tab%202%20%20%20%E2%80%93%20Handout%20%E2%80%93%20NRFD%20General%20dentistry%20-%20High-usage%20ADA%20codes.docx" download>
               <span class="f-name">NRFD General Dentistry — High-usage ADA Codes</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="handouts/ada">Updated Jul 2026</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
           </ul>
 
@@ -238,85 +302,85 @@
           <ul class="form-list">
             <li><a href="forms/front-desk/internal-forms/Tab%203%20%20%20%E2%80%93%20Internal%20Form%20%E2%80%93%20CareCredit%20Payment%20Form.docx" download>
               <span class="f-name">CareCredit Payment Form</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="internal/carecredit">Updated Jul 2026</span><span class="badge internal">Internal</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/front-desk/internal-forms/Tab%204%20%20%20%E2%80%93%20Internal%20Form%20%E2%80%93%20Dandy%20Clear%20Aligner%20Intake%20Form.docx" download>
               <span class="f-name">Dandy Clear Aligner Intake Form</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="internal/dandy">Updated Jul 2026</span><span class="badge internal">Internal</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/front-desk/internal-forms/Tab%205%20%20%20%E2%80%93%20Internal%20Form%20%E2%80%93%20Internal%20Patient%20Coordination%20Form.docx" download>
               <span class="f-name">Internal Patient Coordination Form</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="internal/coord">Updated Jul 2026</span><span class="badge internal">Internal</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
-            <li><a href="forms/front-desk/internal-forms/Tab%206%20%20%20%E2%80%93%20Internal%20Form%20%E2%80%93%20New%20Patient%20Inquiry%20&%20Intake%20Form.docx" download>
+            <li><a href="forms/front-desk/internal-forms/Tab%206%20%20%20%E2%80%93%20Internal%20Form%20%E2%80%93%20New%20Patient%20Inquiry%20&amp;%20Intake%20Form.docx" download>
               <span class="f-name">New Patient Inquiry &amp; Intake Form</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="internal/inquiry">Updated Jul 2026</span><span class="badge internal">Internal</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/front-desk/internal-forms/Tab%207%20%20%20%E2%80%93%20Internal%20Form%20%E2%80%93%20New%20Patient%20Details%20(Additional%20Patients).docx" download>
               <span class="f-name">New Patient Details (Additional Patients)</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="internal/details">Updated Jul 2026</span><span class="badge internal">Internal</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/front-desk/internal-forms/Tab%208%20%20%20%E2%80%93%20Internal%20Form%20%E2%80%93%20Refund%20Request%20Form.docx" download>
               <span class="f-name">Refund Request Form</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="internal/refund">Updated Jul 2026</span><span class="badge internal">Internal</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
           </ul>
         </div>
 
-        <div class="form-group rv">
+        <div class="form-group rv" data-group="front-desk">
           <h3>Patient Forms</h3>
           <ul class="form-list">
             <li><a href="forms/front-desk/patient-forms/Tab%209%20%20%20%E2%80%93%20Patient%20Form%20%E2%80%93%20HIPAA%20Authorization%20Form%20(email%20approved,%20PDF%20protected).pdf" download>
               <span class="f-name">HIPAA Authorization Form (email approved, PDF protected)</span>
-              <span class="f-meta"><span class="badge">.pdf</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="patient/hipaa-pdf">Updated Jul 2026</span><span class="badge">.pdf</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/front-desk/patient-forms/Tab%209%20%20%20%E2%80%93%20Patient%20Form%20%E2%80%93%20HIPAA%20Authorization%20Form%20(email%20cover%20letter).docx" download>
               <span class="f-name">HIPAA Authorization — Email Cover Letter</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="patient/hipaa-cover">Updated Jul 2026</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/front-desk/patient-forms/Tab%209%20%20%20%E2%80%93%20Patient%20Form%20%E2%80%93%20HIPAA%20Authorization%20Form%20(internal%20use,%20not%20protected).docx" download>
               <span class="f-name">HIPAA Authorization — Internal Use (not protected)</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="patient/hipaa-internal">Updated Jul 2026</span><span class="badge internal">Internal</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/front-desk/patient-forms/Tab%2010%20%E2%80%93%20Patient%20Form%20%E2%80%93%20Patient%20Dental%20Record%20Release%20Authorization%20(email%20approved,%20PDF%20protected).pdf" download>
               <span class="f-name">Dental Record Release Authorization (email approved, PDF protected)</span>
-              <span class="f-meta"><span class="badge">.pdf</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="patient/record-pdf">Updated Jul 2026</span><span class="badge">.pdf</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/front-desk/patient-forms/Tab%2010%20%E2%80%93%20Patient%20Form%20%E2%80%93%20Patient%20Dental%20Record%20Release%20Authorization%20(email%20cover%20letter).docx" download>
               <span class="f-name">Dental Record Release — Email Cover Letter</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="patient/record-cover">Updated Jul 2026</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
           </ul>
 
           <h3 style="margin-top:clamp(36px,4vh,56px)">Policies</h3>
           <ul class="form-list">
-            <li><a href="forms/front-desk/policies/Tab%2011%20%E2%80%93%20Policy%20%E2%80%93%20Dental%20Limition%20Warranty%20Policy%20(email%20approved,%20PDF%20protected).pdf" download>
+            <li><a href="forms/front-desk/policies/Tab%2011%20%E2%80%93%20Policy%20%E2%80%93%20Dental%20Limited%20Warranty%20Policy%20(email%20approved,%20PDF%20protected).pdf" download>
               <span class="f-name">Dental Limited Warranty Policy (email approved, PDF protected)</span>
-              <span class="f-meta"><span class="badge">.pdf</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="policies/warranty-pdf">Updated Jul 2026</span><span class="badge">.pdf</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
-            <li><a href="forms/front-desk/policies/Tab%2011%20%E2%80%93%20Policy%20%E2%80%93%20Dental%20Limition%20Warranty%20Policy%20(internal%20use,%20not%20protected).docx" download>
+            <li><a href="forms/front-desk/policies/Tab%2011%20%E2%80%93%20Policy%20%E2%80%93%20Dental%20Limited%20Warranty%20Policy%20(internal%20use,%20not%20protected).docx" download>
               <span class="f-name">Dental Limited Warranty — Internal Use</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="policies/warranty-internal">Updated Jul 2026</span><span class="badge internal">Internal</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/front-desk/policies/Tab%2012%20%E2%80%93%20Policy%20%E2%80%93%20Missed%20Appointment%20Policy%20(email%20approved,%20PDF%20protected).pdf" download>
               <span class="f-name">Missed Appointment Policy (email approved, PDF protected)</span>
-              <span class="f-meta"><span class="badge">.pdf</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="policies/missed-pdf">Updated Jul 2026</span><span class="badge">.pdf</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/front-desk/policies/Tab%2012%20%E2%80%93%20Policy%20%E2%80%93%20Missed%20Appointment%20Policy%20(front%20desk%20log).xlsx" download>
               <span class="f-name">Missed Appointment — Front Desk Log</span>
-              <span class="f-meta"><span class="badge">.xlsx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="policies/missed-log">Updated Jul 2026</span><span class="badge internal">Internal</span><span class="badge">.xlsx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/front-desk/policies/Tab%2012%20%E2%80%93%20Policy%20%E2%80%93%20Missed%20Appointment%20Policy%20(internal%20use,%20not%20protected).docx" download>
               <span class="f-name">Missed Appointment — Internal Use</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="policies/missed-internal">Updated Jul 2026</span><span class="badge internal">Internal</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/front-desk/policies/Tab%2013%20%E2%80%93%20Policy%20%E2%80%93%20Patient%20Financial%20Agreement%20Policy%20(email%20approved,%20PDF%20protected).pdf" download>
               <span class="f-name">Patient Financial Agreement (email approved, PDF protected)</span>
-              <span class="f-meta"><span class="badge">.pdf</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="policies/financial-pdf">Updated Jul 2026</span><span class="badge">.pdf</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
             <li><a href="forms/front-desk/policies/Tab%2013%20%E2%80%93%20Policy%20%E2%80%93%20Patient%20Financial%20Agreement%20Policy%20(internal%20use,%20not%20protected).docx" download>
               <span class="f-name">Patient Financial Agreement — Internal Use</span>
-              <span class="f-meta"><span class="badge">.docx</span><span class="arrow">→</span></span>
+              <span class="f-meta"><span class="doc-date" data-file="policies/financial-internal">Updated Jul 2026</span><span class="badge internal">Internal</span><span class="badge">.docx</span><span class="arrow" aria-hidden="true">→</span></span>
             </a></li>
           </ul>
         </div>
@@ -325,36 +389,36 @@
   </section>
 
   <!-- ============ QUICK LINKS ============ -->
-  <section class="hairline-top" style="padding:clamp(56px,8vh,96px) 0">
+  <section class="hairline-top" style="padding:clamp(56px,8vh,96px) 0" aria-labelledby="ql-heading">
     <div class="wrap">
       <div class="sec-head rv">
         <span class="eyebrow"><span class="num">04</span> Quick access</span>
-        <h2 class="display">Jump to a <em>section.</em></h2>
+        <h2 class="display" id="ql-heading">Jump to a <em>section.</em></h2>
       </div>
       <div class="action-grid" style="border-top:none">
         <a class="action rv" href="#patient-handouts">
           <span class="a-lbl">Patient-facing</span>
           <h3>Patient Handouts</h3>
           <p>Post-treatment care, pre-treatment instructions, and referral letters.</p>
-          <span class="a-go">Go to handouts <i>→</i></span>
+          <span class="a-go">Go to handouts <i aria-hidden="true">→</i></span>
         </a>
         <a class="action rv" href="#front-desk">
           <span class="a-lbl">Team-facing</span>
           <h3>Front Desk Reference</h3>
           <p>Internal forms, patient forms, policies, and everyday handouts.</p>
-          <span class="a-go">Go to reference <i>→</i></span>
+          <span class="a-go">Go to reference <i aria-hidden="true">→</i></span>
         </a>
         <a class="action rv" href="radiographs.html">
           <span class="a-lbl">Clinical</span>
           <h3>Radiograph Viewer</h3>
           <p>AI-assisted panoramic viewer with analysis, measurements, and patient report printing.</p>
-          <span class="a-go">Open viewer <i>→</i></span>
+          <span class="a-go">Open viewer <i aria-hidden="true">→</i></span>
         </a>
         <a class="action rv" href="contact.html">
           <span class="a-lbl">Need help?</span>
           <h3>Contact the Office</h3>
           <p>Questions about a form? Reach the team directly.</p>
-          <span class="a-go">Get in touch <i>→</i></span>
+          <span class="a-go">Get in touch <i aria-hidden="true">→</i></span>
         </a>
       </div>
     </div>
@@ -375,7 +439,7 @@
         <li><a href="about.html">About</a></li>
         <li><a href="insurance.html">Insurance &amp; Payment</a></li>
         <li><a href="contact.html">Contact</a></li>
-        <li><a href="staff.html">Staff</a></li>
+        <li><a href="staff.html" aria-current="page">Staff</a></li>
       </ul>
     </div>
     <div class="foot-base">
@@ -386,17 +450,48 @@
 </footer>
 
 <script>
+  // === Header scroll state ===
   const header = document.getElementById('site-header');
   const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 24);
   window.addEventListener('scroll', onScroll, { passive:true });
   onScroll();
 
+  // === Reveal animations ===
   const io = new IntersectionObserver((entries) => {
     entries.forEach(e => {
       if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
     });
   }, { threshold: .25 });
   document.querySelectorAll('.rv').forEach(el => io.observe(el));
+
+  // === Document search ===
+  (function(){
+    const search = document.getElementById('doc-search');
+    const noResults = document.getElementById('no-results');
+    if (!search) return;
+
+    search.addEventListener('input', (e) => {
+      const term = e.target.value.trim().toLowerCase();
+      const items = document.querySelectorAll('.form-list li');
+      const groups = document.querySelectorAll('.form-group[data-group]');
+      let anyVisible = false;
+
+      items.forEach(li => {
+        const text = li.textContent.toLowerCase();
+        const match = !term || text.includes(term);
+        li.classList.toggle('hidden', !match);
+        if (match) anyVisible = true;
+      });
+
+      // Hide empty groups
+      groups.forEach(g => {
+        const visible = g.querySelectorAll('.form-list li:not(.hidden)').length > 0;
+        g.classList.toggle('hidden', !visible);
+      });
+
+      noResults.style.display = (term && !anyVisible) ? 'block' : 'none';
+    });
+  })();
 </script>
 
 </body>
