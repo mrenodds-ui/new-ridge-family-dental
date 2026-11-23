@@ -1088,7 +1088,6 @@
 
 <script type="module">
   import {
-    loadPatient, loadRadiographs, loadAnalysis,
     loadPatientRecord, buildReport, diagnose,
     loadAnnotationThreads, saveAnnotationThread,
     loadTreatmentOverlays, loadPacsStatus,
@@ -1110,7 +1109,6 @@
   let heatmapOn = false;
   let planOn = false;
   let activeTooth = null;
-  let pacsPollInterval = null;
 
   /* ================================================================
      UTILITIES
@@ -1937,7 +1935,7 @@ The front desk will confirm by phone.`);
 
   // Start PACS polling
   pollPacsStatus();
-  pacsPollInterval = setInterval(pollPacsStatus, 15000);
+  setInterval(pollPacsStatus, 15000);
 
   const targetId = PMS_CONFIG.defaultPatientId || '78429';
   loadAndRender(targetId);
