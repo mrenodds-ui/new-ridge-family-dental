@@ -21,9 +21,7 @@ REQUIRES:
 
 import argparse
 import json
-import os
 import struct
-import sys
 from datetime import datetime, date
 from pathlib import Path
 
