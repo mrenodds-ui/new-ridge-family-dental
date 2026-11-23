@@ -17,7 +17,6 @@ WINDOWS TASK SCHEDULER:
 
 import argparse
 import hashlib
-import os
 import sys
 import time
 from pathlib import Path

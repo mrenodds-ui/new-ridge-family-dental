@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Patch radiographs.html with Phase 3 enhancements."""
 
-import re
 from pathlib import Path
 
 FILE = Path("C:/Users/mreno/Documents/kimi/workspace/new-ridge-family-dental/radiographs.html")
